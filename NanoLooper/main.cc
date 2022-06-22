@@ -142,7 +142,7 @@ namespace Analysis
         gen_ijet_ = LV();
         gen_jjet_ = LV();
         gen_jet0_ = LV();
-        gen_jet2_ = LV();
+        gen_jet1_ = LV();
         gen_H_ = LV();
         gen_b0_ = LV();
         gen_b1_ = LV();

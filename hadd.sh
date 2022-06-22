@@ -1,9 +1,10 @@
 #!/bin/bash
- 
+
 PROCESSES="VBSOSWWH_C2V_3 \
 VBSWWH_C2V_3 \
 VBSWZH_C2V_3 \
 VBSZZH_C2V_3 \
+DYJETSbkg \
 ttbar"
 
 mkdir -p hadds/

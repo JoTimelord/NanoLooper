@@ -6,15 +6,16 @@ def plot(histname, xaxis_name):
 
     p.dump_plot(
         # reference frame (with lower value)
-            fnames=["hadds/ttbar.root"],
+            fnames=["hadds/DYJETSbkg.root","hadds/ttbar.root"],
+            # fnames=["DYJETSbkg1.root"],
             # with larger value
             # data_fname="/home/users/joytzphysics/plots/VBSWWH_4p51.root",
             sig_fnames=["hadds/VBSOSWWH_C2V_3.root", "hadds/VBSWZH_C2V_3.root"],
-            legend_labels=["t#bar{t}"],
-            signal_labels=["VBSOSWWH C_{2V}=3", "VBSWZH C_{2V}=3"],
+            legend_labels=["DYJETS","ttbar"],
+            # signal_labels=["VBSOSWWH C_{2V}=3", "VBSWZH C_{2V}=3"],
             filter_pattern=histname,
             dogrep=False,
-            dirname="plots_compare",
+            dirname="allcuts",
             extraoptions={
                 "nbins": 30,
                 "lumi_value": 137,
@@ -28,12 +29,14 @@ def plot(histname, xaxis_name):
                 "print_yield":True,
                 "yield_prec":4,
                 "signal_scale":10,
+                #"yaxis_log": True,
                 },
     )
 
 if __name__ == "__main__":
 
     hist_list = ("ptLep1",
+                 "softdropmass",
                  "ptLep2",
                  "etaLep1",
                  "etaLep2",

@@ -6,6 +6,7 @@ PROCESSES="VBSOSWWH_C2V_3 \
 VBSWWH_C2V_3 \
 VBSWZH_C2V_3 \
 VBSZZH_C2V_3 \
+DYJETSbkg \
 ttbar"
 
 rm -f .jobs.txt
@@ -18,6 +19,8 @@ for PROCESS in ${PROCESSES}; do
     if [[ ${PROCESS} == *"VBSWZH_C2V_3" ]]; then SCALE1FB=5.797057e-6; fi
     if [[ ${PROCESS} == *"VBSZZH_C2V_3" ]]; then SCALE1FB=4.663566e-6; fi
     if [[ ${PROCESS} == *"ttbar" ]]; then SCALE1FB=0.002466; fi
+    if [[ ${PROCESS} == *"DYJETSbkg" ]]; then SCALE1FB=0.2036172; fi
+
     IFILE=0
     for INPUTFILE in $(ls ${SAMPLEDIR}/${PROCESS}); do
         IFILE=$((IFILE+1))

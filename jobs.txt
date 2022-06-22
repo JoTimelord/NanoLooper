@@ -1,5 +1,0 @@
-sleep 1; echo "hello world \#1" > job1.log
-sleep 2; echo "hello world \#2" > job2.log
-sleep 3; echo "hello world \#3" > job3.log
-sleep 4; echo "hello world \#4" > job4.log
-sleep 5; echo "hello world \#5" > job5.log

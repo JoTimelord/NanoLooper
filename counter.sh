@@ -5,7 +5,7 @@ rm -f .jobs.txt
 rm -f .nevents_*.txt
 
 index=0
-for i in $(ls /home/users/joytzphysics/VBSZZH_C2V_3/*.root);
+for i in $(ls /home/users/joytzphysics/DYJETSbkg/*.root);
 do
 
     index=$((index+1))
