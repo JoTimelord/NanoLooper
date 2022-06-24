@@ -1154,7 +1154,6 @@ int main(int argc, char** argv)
         Hist::fillLeptonsKinematicHistograms();
         Hist::fillHbbFatJetKinematicHistograms();
         Hist::fillJetsKinematicHistograms();
-        Hist::fillLeptonsKinematicHistograms();
 
 
 

@@ -18,7 +18,7 @@ for PROCESS in ${PROCESSES}; do
     if [[ ${PROCESS} == *"VBSWWH_C2V_3" ]]; then SCALE1FB=5.580557e-6; fi
     if [[ ${PROCESS} == *"VBSWZH_C2V_3" ]]; then SCALE1FB=5.797057e-6; fi
     if [[ ${PROCESS} == *"VBSZZH_C2V_3" ]]; then SCALE1FB=4.663566e-6; fi
-    if [[ ${PROCESS} == *"ttbar" ]]; then SCALE1FB=0.002466; fi
+    if [[ ${PROCESS} == *"ttbar" ]]; then SCALE1FB=0.003202999635; fi
     if [[ ${PROCESS} == *"DYJETSbkg" ]]; then SCALE1FB=0.2036172; fi
 
     IFILE=0
