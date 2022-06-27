@@ -897,8 +897,6 @@ namespace Hist
 }
 
 
-
-
         
         
 //====================================================================
@@ -1055,6 +1053,7 @@ int main(int argc, char** argv)
         }
 
         // Cut#3: Require that there are exactly two leptons
+        if (not (Analysis::leptons_.size() ==2 )) {continue; }
         if (not ((Analysis::elecs_.size() == 2) || (Analysis::muons_.size() == 2))) { continue; }
         // Cut#3: Require that the two leptons have OS (opposite-sign)
         int is_os = false;
@@ -1081,13 +1080,17 @@ int main(int argc, char** argv)
         cut4_events ++;
         
         
-        // Cut#4: Require at least two fatjet with softdropmass > 20 GeV
-        if (not (Analysis::fatJets_.size() >= 2 ) ) { continue;}
+        // Cut#4: Require at least one fatjet with softdropmass > 40 GeV
+        if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
 
+        Hist::fillSHatHistograms();
+        Hist::fillLeptonsKinematicHistograms();
+        Hist::fillHbbFatJetKinematicHistograms();
+        Hist::fillJetsKinematicHistograms();
 
-  
+ 
         // Cut#5: Require the Hbb score > 0.8
         float maxhbbscore = Analysis::fatJets_[0].hbbScore;
         float maxwscore = Analysis::fatJets_[1].hbbScore;
@@ -1150,12 +1153,7 @@ int main(int argc, char** argv)
         // Now fill the histograms
         if (gen_level) { Hist::fillGenLevelHistograms(); }
 
-        Hist::fillSHatHistograms();
-        Hist::fillLeptonsKinematicHistograms();
-        Hist::fillHbbFatJetKinematicHistograms();
-        Hist::fillJetsKinematicHistograms();
-
-
+ 
 
     }
 
