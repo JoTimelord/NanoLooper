@@ -10,7 +10,7 @@ def plot(histname, xaxis_name):
             # fnames=["DYJETSbkg1.root"],
             # with larger value
             # data_fname="/home/users/joytzphysics/plots/VBSWWH_4p51.root",
-            sig_fnames=["hadds/VBSOSWWH_C2V_3.root", "hadds/VBSWZH_C2V_3.root"],
+            sig_fnames=["hadds/VBSOSWWH_C2V_4.root", "hadds/VBSWZH_C2V_4.root"],
             legend_labels=["DYJETS","ttbar"],
             # signal_labels=["VBSOSWWH C_{2V}=3", "VBSWZH C_{2V}=3"],
             filter_pattern=histname,

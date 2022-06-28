@@ -1055,6 +1055,7 @@ int main(int argc, char** argv)
         }
 
         // Cut#3: Require that there are exactly two leptons
+        if (not (Analysis::leptons_.size() == 2)) {continue; }
         if (not ((Analysis::elecs_.size() == 2) || (Analysis::muons_.size() == 2))) { continue; }
         // Cut#3: Require that the two leptons have OS (opposite-sign)
         int is_os = false;
@@ -1103,11 +1104,9 @@ int main(int argc, char** argv)
                 maxwscore = Analysis::fatJets_[ifatjet].hbbScore;
             }
         }
-        if (maxhbbscore < 0.9) { continue;}
+        if (maxhbbscore < 0.8) { continue;}
         cut6_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-        if (maxwscore < 0.9) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kWscore);
 
         
         // Cut#6: Require that there are at least 2 pt > 30 GeV jets
