@@ -358,13 +358,16 @@ namespace Analysis
                 }
             }
             hbbFatJet_ = fatJets_[maxHbbNo].p4;
-            for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
-                if (fatJets_[ifatjet].wjjScore >= maxwjjscore && ifatjet != maxHbbNo) {
-                    maxWjjNo = ifatjet;
-                    maxwjjscore = fatJets_[ifatjet].wjjScore;
+            if (fatJets_.size() > 1)
+            {
+                for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
+                    if (fatJets_[ifatjet].wjjScore >= maxwjjscore && ifatjet != maxHbbNo) {
+                        maxWjjNo = ifatjet;
+                        maxwjjscore = fatJets_[ifatjet].wjjScore;
+                    }
                 }
-            }
-            wjjFatJet_ = fatJets_[maxWjjNo].p4;
+                wjjFatJet_ = fatJets_[maxWjjNo].p4;
+            } 
         }
     }
 
@@ -548,7 +551,6 @@ namespace Cutflow
         kTwoLightLeptons,
         kOneHbbFatJet,
         kHbbScore,
-        kWscore,
         kAtLeastTwoPt30Jets,
         kMjj,
         kMll,
@@ -566,6 +568,7 @@ namespace Cutflow
     {
         // Cutflow histogram for including gen_level
         h_cutflow_ = new TH1F("h_cutflow", "Cutflow of the selections", Cuts::kNCuts, 0, Cuts::kNCuts);
+        h_cutflow_unwgt_ = new TH1F("h_cutflow_unwgt", "Raw Cutflow of the selections", Cuts::kNCuts, 0, Cuts::kNCuts); 
 
     }
 
@@ -574,6 +577,7 @@ namespace Cutflow
     void fillCutflow(Cuts cutstage)
     {
         h_cutflow_->Fill(cutstage, Analysis::wgt_);
+        h_cutflow_unwgt_->Fill(cutstage);
     } 
 
     //_______________________________________________________
@@ -582,6 +586,7 @@ namespace Cutflow
     {
         ofile->cd();
         h_cutflow_->Write();
+        h_cutflow_unwgt_->Write();
     } 
 
 }
@@ -1037,7 +1042,6 @@ int main(int argc, char** argv)
         Analysis::runAlgorithms();
         // Fill the "counter" histogram
         Cutflow::fillCutflow(Cutflow::Cuts::kNoSelection);
-        
 	
         if (gen_level) {
             // Cut#1: Check if vbs
@@ -1087,7 +1091,6 @@ int main(int argc, char** argv)
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
 
-
   
         // Cut#5: Require the Hbb score > 0.8
         float maxhbbscore = Analysis::fatJets_[0].hbbScore;
@@ -1108,7 +1111,7 @@ int main(int argc, char** argv)
         cut6_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
 
-        
+       
         // Cut#6: Require that there are at least 2 pt > 30 GeV jets
         
         if (not (Analysis::jets_.size() >= 2)) { continue; }
@@ -1126,6 +1129,7 @@ int main(int argc, char** argv)
         if (not (((Analysis::leptons_[0]+Analysis::leptons_[1]).M()) >= 80 && ((Analysis::leptons_[0]+Analysis::leptons_[1]).M()) <= 100)) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kMll);
 
+       
         // Cut#9: Require dRLep<1.5
         LV lep1 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
         LV lep2 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
@@ -1133,27 +1137,19 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kDrlep);
 
         // Cut#10: Require massZH>250
-        if (not ((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M() >= 215)) { continue; } 
+        if (not ((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M() >= 400)) { continue; } 
         Cutflow::fillCutflow(Cutflow::Cuts::kZhmass);
-
-
-        // Cut#8: Require etaHbb<1.6
-        /*
-        if (not (Analysis::hbbFatJet_.Eta() <= 1.3)) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kEtahbb);
-
-        */
-        // Fill Lepton Histogram;
-
-        // All cuts have passed
-        // Now fill the histograms
-        if (gen_level) { Hist::fillGenLevelHistograms(); }
+        
 
         Hist::fillSHatHistograms();
         Hist::fillLeptonsKinematicHistograms();
         Hist::fillHbbFatJetKinematicHistograms();
         Hist::fillJetsKinematicHistograms();
-        Hist::fillLeptonsKinematicHistograms();
+
+
+        // All cuts have passed
+        // Now fill the histograms
+        if (gen_level) { Hist::fillGenLevelHistograms(); }
 
 
 

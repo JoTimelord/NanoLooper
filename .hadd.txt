@@ -1,4 +1,7 @@
-hadd -f hadds/VBSOSWWH_C2V_4.root outputs/VBSOSWWH_C2V_4*.root > hadds/VBSOSWWH_C2V_4.log 2>&1
-hadd -f hadds/VBSWZH_C2V_4.root outputs/VBSWZH_C2V_4*.root > hadds/VBSWZH_C2V_4.log 2>&1
 hadd -f hadds/DYJETSbkg.root outputs/DYJETSbkg*.root > hadds/DYJETSbkg.log 2>&1
-hadd -f hadds/ttbar.root outputs/ttbar*.root > hadds/ttbar.log 2>&1
+hadd -f hadds/WWinclusive.root outputs/WWinclusive*.root > hadds/WWinclusive.log 2>&1
+hadd -f hadds/VBSOSWWH_C2V_4.root outputs/VBSOSWWH_C2V_4*.root > hadds/VBSOSWWH_C2V_4.log 2>&1
+hadd -f hadds/VBSOSWWH_C2V_3.root outputs/VBSOSWWH_C2V_3*.root > hadds/VBSOSWWH_C2V_3.log 2>&1
+hadd -f hadds/VBSWZH_C2V_3.root outputs/VBSWZH_C2V_3*.root > hadds/VBSWZH_C2V_3.log 2>&1
+hadd -f hadds/VBSWZH_C2V_4.root outputs/VBSWZH_C2V_4*.root > hadds/VBSWZH_C2V_4.log 2>&1
+hadd -f hadds/WWdilep.root outputs/WWdilep*.root > hadds/WWdilep.log 2>&1

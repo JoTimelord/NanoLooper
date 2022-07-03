@@ -1,9 +1,27 @@
 #!/bin/bash
 
-PROCESSES="VBSOSWWH_C2V_4 \
+#PROCESSES="VBSOSWWH_C2V_4 \
+#VBSWZH_C2V_4"
+
+PROCESSES="DYJETSbkg \
+WWinclusive \
+VBSOSWWH_C2V_4 \
+VBSOSWWH_C2V_3 \
+VBSWZH_C2V_3 \
 VBSWZH_C2V_4 \
-DYJETSbkg \
-ttbar"
+WWdilep"
+
+
+#PROCESSES="DYJETSbkg \
+#ttdilep \
+#VBSOSWWH_C2V_4 \
+#VBSOSWWH_C2V_3 \
+#VBSWZH_C2V_3 \
+#VBSWZH_C2V_4"
+
+
+#PROCESSES="DYJETSbkg \
+#ttdilep"
 
 mkdir -p hadds/
 

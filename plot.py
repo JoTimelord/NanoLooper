@@ -6,13 +6,13 @@ def plot(histname, xaxis_name):
 
     p.dump_plot(
         # reference frame (with lower value)
-            fnames=["hadds/DYJETSbkg.root","hadds/ttbar.root"],
+            fnames=["hadds/DYJETSbkg.root","hadds/WWinclusive.root","hadds/WWdilep.root"],
             # fnames=["DYJETSbkg1.root"],
             # with larger value
             # data_fname="/home/users/joytzphysics/plots/VBSWWH_4p51.root",
             sig_fnames=["hadds/VBSOSWWH_C2V_4.root", "hadds/VBSWZH_C2V_4.root"],
-            legend_labels=["DYJETS","ttbar"],
-            # signal_labels=["VBSOSWWH C_{2V}=3", "VBSWZH C_{2V}=3"],
+            legend_labels=["DYJETS", "WWinclusive", "WWdilep"],
+            signal_labels=["VBSOSWWH C_{2V}=4", "VBSWZH C_{2V}=4"],
             filter_pattern=histname,
             dogrep=False,
             dirname="allcuts",
@@ -28,7 +28,7 @@ def plot(histname, xaxis_name):
                 #"ratio_xaxis_title":xaxis_name,
                 "print_yield":True,
                 "yield_prec":4,
-                "signal_scale":10,
+                #"signal_scale":10,
                 #"yaxis_log": True,
                 },
     )
@@ -46,6 +46,7 @@ if __name__ == "__main__":
                  "ptDiLep",
                  "dRLep",
                  "h_cutflow",
+                 "h_cutflow_unwgt",
                  "ptVBFjet1",
                  "ptVBFjet2",
                  "etaVBFjet2",
