@@ -1055,6 +1055,7 @@ int main(int argc, char** argv)
         // Cut#3: Require that there are exactly two leptons
         if (not (Analysis::leptons_.size() ==2 )) {continue; }
         if (not ((Analysis::elecs_.size() == 2) || (Analysis::muons_.size() == 2))) { continue; }
+
         // Cut#3: Require that the two leptons have OS (opposite-sign)
         int is_os = false;
         if (Analysis::elecs_.size() == 2)

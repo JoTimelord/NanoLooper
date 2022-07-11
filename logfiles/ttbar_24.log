@@ -1,65 +1,0 @@
-Warning in <TFile::Append>: Replacing existing TH1: h_gen_deltaEta (Potential memory leak).
-Warning in <TFile::Append>: Replacing existing TH1: h_gen_massVBF (Potential memory leak).
->>> Hostname is uaf-10.t2.ucsd.edu
-inputs : /home/users/joytzphysics//ttbar/B27BB163-0362-3143-9718-9C1F6969316C.root
-                                                                                                    RooUtil:: Adding /home/users/joytzphysics//ttbar/B27BB163-0362-3143-9718-9C1F6969316C.root
-                                                                                                    RooUtil:: Start EventLooping
-                                                                                                    RooUtil:: System info:
-uaf-10.t2.ucsd.edu
-Linux uaf-10.t2.ucsd.edu 5.14.13-1.el7.elrepo.x86_64 #1 SMP Fri Oct 15 13:26:13 EDT 2021 x86_64 x86_64 x86_64 GNU/Linux
-Mon Jun 27 10:45:22 PDT 2022
-joytzphysics
-/home/users/joytzphysics/NanoLooper
-                                                                                                    RooUtil::  _
-                                                                                                    RooUtil:: /\\
-                                                                                                    RooUtil:: \ \\  \__/ \__/
-                                                                                                    RooUtil::  \ \\ (oo) (oo)  Here we come!
-                                                                                                    RooUtil::   \_\\/~~\_/~~\_
-                                                                                                    RooUtil::  _.-~===========~-._
-                                                                                                    RooUtil:: (___________________)
-                                                                                                    RooUtil::       \_______/
-                                                                                                    RooUtil:: 
-                                                                                                    RooUtil::  Your friendly aliens
-                                                                                                    RooUtil::      Surf & Turf
-                                                                                                    RooUtil:: 
-Warning in <TClass::Init>: no dictionary for class __pair_base<edm::Hash<1>,edm::ParameterSetBlob> is available
-                                                                                                    RooUtil:: Total Events in this Chain to process = 1320000
-                                                                                                    RooUtil:: TTreeCache enabled
-                                                                                                    RooUtil:: Looping /home/users/joytzphysics//ttbar/B27BB163-0362-3143-9718-9C1F6969316C.root/TTree:Events
-
- *** Break *** segmentation violation
-
-
-
-===========================================================
-There was a crash.
-This is the entire stack trace of all threads:
-===========================================================
-#0  0x00007fee7338660c in waitpid () from /lib64/libc.so.6
-#1  0x00007fee73303f62 in do_system () from /lib64/libc.so.6
-#2  0x00007fee75d29a8b in TUnixSystem::StackTrace() () from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_2_13/external/slc7_amd64_gcc700/lib/libCore.so
-#3  0x00007fee75d2c0cc in TUnixSystem::DispatchSignals(ESignals) () from /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_2_13/external/slc7_amd64_gcc700/lib/libCore.so
-#4  <signal handler called>
-#5  0x0000000000421962 in ROOT::Math::PtEtaPhiM4D<float>::operator= (v=..., this=<optimized out>) at /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_2_13/external/slc7_amd64_gcc700/bin/../../../../../../../slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf5/include/Math/GenVector/PtEtaPhiM4D.h:95
-#6  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >::operator= (this=<optimized out>) at /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_2_13/external/slc7_amd64_gcc700/bin/../../../../../../../slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf5/include/Math/GenVector/LorentzVector.h:48
-#7  Analysis::selectFatJets () at main.cc:367
-#8  0x0000000000421f72 in Analysis::runAlgorithms () at main.cc:522
-#9  0x000000000041d615 in main (argc=1946983296, argv=0x1) at main.cc:1035
-===========================================================
-
-
-The lines below might hint at the cause of the crash.
-You may get help by asking at the ROOT forum http://root.cern.ch/forum.
-Only if you are really convinced it is a bug in ROOT then please submit a
-report at http://root.cern.ch/bugs. Please post the ENTIRE stack trace
-from above as an attachment in addition to anything else
-that might help us fixing this issue.
-===========================================================
-#5  0x0000000000421962 in ROOT::Math::PtEtaPhiM4D<float>::operator= (v=..., this=<optimized out>) at /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_2_13/external/slc7_amd64_gcc700/bin/../../../../../../../slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf5/include/Math/GenVector/PtEtaPhiM4D.h:95
-#6  ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<float> >::operator= (this=<optimized out>) at /cvmfs/cms.cern.ch/slc7_amd64_gcc700/cms/cmssw/CMSSW_10_2_13/external/slc7_amd64_gcc700/bin/../../../../../../../slc7_amd64_gcc700/lcg/root/6.12.07-gnimlf5/include/Math/GenVector/LorentzVector.h:48
-#7  Analysis::selectFatJets () at main.cc:367
-#8  0x0000000000421f72 in Analysis::runAlgorithms () at main.cc:522
-#9  0x000000000041d615 in main (argc=1946983296, argv=0x1) at main.cc:1035
-===========================================================
-
-
