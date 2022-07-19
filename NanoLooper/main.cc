@@ -46,6 +46,12 @@ namespace Obj
         int isBtagTight;
         int isBtagLoose;
         double mass;
+        float tau1;
+        float tau2;
+        float tau3;
+        float tau4;
+        float n2b1;
+        float n3b1;
     };
     
 }
@@ -101,13 +107,17 @@ namespace Analysis
     std::vector<LV> leptons_;
     std::vector<LV> VBFjets_;
     std::vector<LV> bjets_;
-    std::vector<LV> Wjets_;
+    LV leadingJet_;
+    LV subleadingJet_;
 
     //________________________________________________________
     // Fat Jets reconstruction
     std::vector<Obj::Jet> fatJets_;
+    std::vector<float> tau_(4);
     LV hbbFatJet_;
     LV wjjFatJet_;
+    float n2b1;
+    float n3b1;
  
 
     //_______________________________________________________
@@ -157,12 +167,16 @@ namespace Analysis
         muons_.clear();
         jets_.clear();
         fatJets_.clear();
+        tau_.clear();
         leptons_.clear();
         VBFjets_.clear();
         bjets_.clear();
-        Wjets_.clear();
+        leadingJet_ = LV();
+        subleadingJet_ = LV();
         hbbFatJet_ = LV(); 
         wjjFatJet_ = LV();
+        n2b1 = 0;
+        n3b1 = 0.5;
 
     }
 
@@ -340,6 +354,12 @@ namespace Analysis
             this_fatJet.hbbScore = nt.FatJet_particleNet_HbbvsQCD()[ifatjet];
             this_fatJet.wjjScore = nt.FatJet_deepTagMD_WvsQCD()[ifatjet];
             this_fatJet.JetIdx = -999;
+            this_fatJet.tau1 = nt.FatJet_tau1()[ifatjet];
+            this_fatJet.tau2 = nt.FatJet_tau2()[ifatjet];
+            this_fatJet.tau3 = nt.FatJet_tau3()[ifatjet];
+            this_fatJet.tau4 = nt.FatJet_tau4()[ifatjet];
+            this_fatJet.n2b1 = nt.FatJet_n2b1()[ifatjet];
+            this_fatJet.n3b1 = nt.FatJet_n3b1()[ifatjet];
             fatJets_.push_back(this_fatJet);
         }
         
@@ -347,9 +367,7 @@ namespace Analysis
         if (fatJets_.size() > 0) 
         { 
             float maxhbbscore = -999;
-            float maxwjjscore = -999;
             int maxHbbNo;
-            int maxWjjNo;
         // Prioritize Hbb selection
             for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
                 if (fatJets_[ifatjet].hbbScore >= maxhbbscore) {
@@ -358,13 +376,12 @@ namespace Analysis
                 }
             }
             hbbFatJet_ = fatJets_[maxHbbNo].p4;
-            for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
-                if (fatJets_[ifatjet].wjjScore >= maxwjjscore && ifatjet != maxHbbNo) {
-                    maxWjjNo = ifatjet;
-                    maxwjjscore = fatJets_[ifatjet].wjjScore;
-                }
-            }
-            wjjFatJet_ = fatJets_[maxWjjNo].p4;
+            tau_[0] = fatJets_[maxHbbNo].tau1;
+            tau_[1] = fatJets_[maxHbbNo].tau2;
+            tau_[2] = fatJets_[maxHbbNo].tau3;
+            tau_[3] = fatJets_[maxHbbNo].tau4;
+            n2b1 = fatJets_[maxHbbNo].n2b1;
+            n3b1 = fatJets_[maxHbbNo].n3b1;
         }
     }
 
@@ -432,7 +449,7 @@ namespace Analysis
                 continue;
 
             // We keep jets above 30 GeV only
-            if (not (jet_p4.pt() > 30.))
+            if (not (jet_p4.pt() > 30.) )
                 continue;
 
             Obj::Jet this_jet;
@@ -441,6 +458,7 @@ namespace Analysis
             this_jet.isBtagTight = nt.Jet_btagDeepFlavB()[ijet] > gconf.WP_DeepFlav_tight;
             this_jet.isBtagLoose = nt.Jet_btagDeepFlavB()[ijet] > gconf.WP_DeepFlav_loose;
             jets_.push_back(this_jet);
+            
 
         }
     }
@@ -455,6 +473,10 @@ namespace Analysis
             return;
         double largestEta1 = -999;
         double largestEta2 = 999;
+        double largestPt = 0;
+        double largerPt = 0;
+        int leading = 0;
+        int subleading = 0;
         int VBFIndex1 = 0;
         int VBFIndex2 = 0;
         for (unsigned int i = 0; i < jets_.size(); i++) {
@@ -467,40 +489,20 @@ namespace Analysis
                 VBFIndex2 = i;
                 largestEta2 = jeti.Eta();
             }
+            if (jeti.Pt() > largestPt) {
+                leading = i;
+                largestPt = jeti.Pt();
+            }
+            else if (jeti.Pt() < largestPt && jeti.Pt() > largerPt) {
+                subleading = i;
+                largerPt = jeti.Pt();
+            }
         } 
+        leadingJet_ = jets_[leading].p4;
+        subleadingJet_ = jets_[subleading].p4;
+
         VBFjets_.push_back(jets_[VBFIndex1].p4);
         VBFjets_.push_back(jets_[VBFIndex2].p4);
-        double largestpT = 0;
-        double largerpT = 0;
-        int Wjet1 = 0;
-        int Wjet2 = 0;
-        for (unsigned int i = 0; i <jets_.size(); i++) {
-            if (i != VBFIndex1 && i != VBFIndex2) {
-                largestpT = (jets_[i].p4).Pt();
-                largerpT = (jets_[i].p4).Pt();
-                Wjet1 = i;
-                Wjet2 = i;
-                break;
-            }
-        }
-
-        for (unsigned int j = 0; j <jets_.size(); j++) {
-            if (j != VBFIndex1 && j != VBFIndex2) {
-                double jetpT = (jets_[j].p4).Pt();
-                if (jetpT >= largestpT) {
-                    largerpT = largestpT;
-                    Wjet2 = Wjet1;
-                    largestpT = jetpT;
-                    Wjet1 = j;
-                }
-                else if (jetpT < largestpT && jetpT > largerpT) {
-                    Wjet2 = j;
-                    largerpT = jetpT;
-                }
-            }
-        }
-        Wjets_.push_back(jets_[Wjet1].p4);
-        Wjets_.push_back(jets_[Wjet2].p4);
     }
 
     //_______________________________________________________
@@ -548,13 +550,9 @@ namespace Cutflow
         kTwoLightLeptons,
         kOneHbbFatJet,
         kHbbScore,
-        kWscore,
         kAtLeastTwoPt30Jets,
-        kMjj,
-        kMll,
-        kDrlep,
-        kZhmass,
-//        kEtahbb,
+        kdRVBF,
+        ktempcut,
         kNCuts,
     };
 
@@ -618,18 +616,34 @@ namespace Hist
     TH1F* massDiLep;
     TH1F* ptDiLep;
     TH1F* dRLep; 
+    TH1F* deltaEtaLep;
+    TH1F* deltaEtaLep1FatJet_;
+    TH1F* deltaEtaLep2FatJet_;
+    TH1F* nLep;
 
     // jets
+    TH1F* nJets_;
+    TH1F* ptDijet;
     TH1F* etaVBFjet1;
+    TH1F* etaVBFjet2;
     TH1F* ptVBFjet1;
     TH1F* ptVBFjet2;
-    TH1F* etaVBFjet2;
+    TH1F* mpRatioVBFjet1_;
+    TH1F* mpRatioVBFjet2_;
+    TH1F* dRVBF;
     TH1F* VBFjetMass;
-    TH1F* ptB1;
-    TH1F* ptB2;
-    TH1F* ptWjet1_;
-    TH1F* ptWjet2;
-    TH1F* WjetMass;
+    TH1F* ptLeading_;
+    TH1F* ptSubleading_;
+    TH1F* etaLeading_;
+    TH1F* dRjets_;
+    TH1F* deltaEtajets_;
+    TH1F* etaSubleading_;
+    TH1F* phiLeading_;
+    TH1F* phiSubleading_;
+    TH1F* dRVBF1FatJet_;
+    TH1F* dRVBF2FatJet_;
+    TH1F* deltaEtaVBF1FatJet_;
+    TH1F* deltaEtaVBF2FatJet_;
     
     // dR between reconstructed and gen-level
     TH1F* dRleadingVBF_;
@@ -641,11 +655,18 @@ namespace Hist
     // FatJets
     TH1F* ptHbb_;
     TH1F* etaHbb_;
-    TH1F* etaWjj_;
-    TH1F* ptWjj_;
+    TH1F* phiHbb_;
     TH1F* massHbb;
     TH1F* nFatjets_;
     TH1F* softdropmass_;
+    TH1F* tau1_;
+    TH1F* tau2_;
+    TH1F* tau3_;
+    TH1F* tau4_;
+    TH1F* tau21_;
+    TH1F* tau32_;
+    TH1F* n2b1_;
+    TH1F* n3b1_;
 
     // FatJetScore
     TH1F* wjjScore_;
@@ -657,6 +678,7 @@ namespace Hist
     TH1F* massZH_;
     TH1F* massZHzoom_;
     TH1F* ST_;
+    TH1F* KT_;
 
     //_______________________________________________________
     // Book the histograms
@@ -675,11 +697,14 @@ namespace Hist
         // VBF quarks kinematics
         h_gen_deltaEta_ = new TH1F("h_gen_deltaEta", "Delta Eta of VBF quarks", 1080, 0, 10);
         h_gen_massVBF_ = new TH1F("h_gen_massVBF", "Invariant mass of VBF quark system", 1080, 0, 3500);
+
         // bQ kinematics
         h_gen_massbQsystem_ = new TH1F("h_gen_massbQsystem", "Mass of bottom quark system", 1080, 0, 200);
         h_gen_ptb0_ = new TH1F("h_gen_ptb0", "pt of leading bottom quarks", 1080, 0, 400);
         h_gen_deltaEta_ = new TH1F("h_gen_deltaEta", "Delta Eta of VBF quarks", 1080, 0, 10);
         h_gen_massVBF_ = new TH1F("h_gen_massVBF", "Invariant mass of VBF quark system", 1080, 0, 3500);
+
+        //______________________________________________________
         // Leptons kinematics
         ptLep1 = new TH1F("ptLep1", "pt of leading leptons_", 1080, 0, 600);
         ptLep2 = new TH1F("ptLep2", "pt of subleading leptons_", 1080, 0, 600);
@@ -687,9 +712,14 @@ namespace Hist
         etaLep2 = new TH1F("etaLep2", "eta of subleading leptons_", 1080, -5, 5);
         phiLep1 = new TH1F("phiLep1", "phi of leading leptons_", 1080, -5, 5);
         phiLep2 = new TH1F("phiLep2", "phi of subleading leptons_", 1080, -5, 5);
-        massDiLep = new TH1F("massDiLep", "mass of dileptons", 1080, 0, 250);
-        ptDiLep = new TH1F("ptDiLep", "pt of the dilepton system", 1080, 0, 1800);
-        dRLep = new TH1F("dRLep", "delta R between two leptons_", 1080, 0, 5);
+        massDiLep = new TH1F("massDiLep", "mass of dileptons", 1080, 0, 400);
+        ptDiLep = new TH1F("ptDiLep", "pt of the dilepton system", 1080, 0, 2500);
+        dRLep = new TH1F("dRLep", "delta R between two leptons", 1080, 0, 5);
+        deltaEtaLep = new TH1F("deltaEtaLep", "delta Eta between two leptons", 1080, 0, 5);
+        deltaEtaLep1FatJet_ = new TH1F("deltaEtaLep1FatJet", "delta Eta between lepton1 and Fatjet", 1080, 0, 5);
+        deltaEtaLep2FatJet_ = new TH1F("deltaEtaLep2FatJet", "delta Eta between lepton2 and Fatjet", 1080, 0, 5);
+        nLep = new TH1F("nLep", "number of leptons", 5, 0, 5);
+
         //______________________________________________________
         // jets kinematics
         etaVBFjet1 = new TH1F("etaVBFjet1", "eta of leading VBF jet", 1080, -5, 5); 
@@ -697,22 +727,41 @@ namespace Hist
         re_deltaEtaVBF = new TH1F("re_deltaEtaVBF", "Delta Eta of VBF quarks (Reconstructed)", 1080, 0, 10);
         ptVBFjet1 = new TH1F("ptVBFjet1", "pt of leading VBF jets", 1080, 0, 500);
         ptVBFjet2 = new TH1F("ptVBFjet2", "pt of subleading VBF jets", 1080, 0, 500);
+        mpRatioVBFjet1_ = new TH1F("mpRatioVBFjet1", "mass/pt of VBF jet1", 1080, 0, 1);
+        mpRatioVBFjet2_ = new TH1F("mpRatioVBFjet2", "mass/pt of VBF jet2", 1080, 0, 1);
+        ptDijet = new TH1F("ptDijet", "pt of dijet", 1080, 0, 1000);
         VBFjetMass = new TH1F("VBFjetMass", "Invariant mass of VBF quark system", 1080, 0, 3500);
-        ptB1 = new TH1F("ptB1", "pt of leading bottom quarks", 1080, 0, 400);
-        ptB2 = new TH1F("ptB2", "pt of subleading bottom quarks", 1080, 0, 400);
-        ptWjet1_ = new TH1F("ptWjet1", "pt of leading jet quarks from W bosons", 1080, 0, 300);
-        ptWjet2 = new TH1F("ptWjet2", "pt of subleading jet quarks from W bosons", 1080, 0, 300);
-        WjetMass = new TH1F("WjetMass", "Invariant mass of jet quark system", 1080, 0, 100); 
+        dRVBF = new TH1F("dRVBF", "delta R of VBF jets", 1080, 0, 10);
+        dRVBF1FatJet_ = new TH1F("dRVBF1FatJet", "delta R between VBF jet1 and the Hbb fatjet", 100, 0, 10);
+        dRVBF2FatJet_ = new TH1F("dRVBF2FatJet", "delta R between VBF jet2 and the Hbb fatjet", 100, 0, 10);
+        deltaEtaVBF1FatJet_ = new TH1F("deltaEtaVBF1FatJet", "delta eta between VBF jet1 and the Hbb fatjet", 100, 0, 10);
+        deltaEtaVBF2FatJet_ = new TH1F("deltaEtaVBF2FatJet", "delta eta between VBF jet2 and the Hbb fatjet", 100, 0, 10);
+        ptLeading_ = new TH1F("ptLeading", "pt of leading jet quarks", 1080, 0, 500);
+        ptSubleading_ = new TH1F("ptSubleading", "pt of subleading jet quarks", 1080, 0, 500);
+        etaLeading_ = new TH1F("etaLeading", "eta of leading jet quarks", 1080, -5, 5);
+        dRjets_ = new TH1F("dRjets", "delta R of two leading jets", 1080, 0, 5);
+        deltaEtajets_ = new TH1F("deltaEtajets", "delta Eta of two leading jets", 1080, 0, 10);
+        etaSubleading_ = new TH1F("etaSubleading", "eta of subleading jet", 1080, -5, 5);
+        phiLeading_ = new TH1F("phiLeading", "phi of leading jet", 1080, -5, 5);
+        phiSubleading_ = new TH1F("phiSubleading", "phi of subleading jet", 1080, -5, 5);
+        nJets_ = new TH1F("nJets", "number of ak4 jets", 8, 0, 8);
 
         //______________________________________________________
         // fatJets Kinematics
         ptHbb_ = new TH1F("ptHbb", "pt of Hbb fatjet", 1080, 0, 1800);
-        ptWjj_ = new TH1F("ptWjj", "pt of Wjj fatjet", 1080, 0, 1800);
         etaHbb_ = new TH1F("etaHbb", "eta of Hbb fatjet", 1080, -5, 5);
-        etaWjj_ = new TH1F("etaWjj", "eta of Wjj fatjet", 1080, -5, 5);
+        phiHbb_ = new TH1F("phiHbb", "phi of Hbb fatjet", 1080, -5, 5);
         massHbb = new TH1F("massHbb", "mass of Hbb fatjet", 1080, 0, 200);
         nFatjets_ = new TH1F("nFatjets", "Number of fatjets", 5, 0, 5);
         softdropmass_ = new TH1F("softdropmass", "softdrop mass of hbb fatjets", 1080, 0, 200);
+        tau1_ = new TH1F("tau1", "Nsubjettiness 1 axis", 1080, 0, 1); 
+        tau2_ = new TH1F("tau2", "Nsubjettiness 2 axis", 1080, 0, 1); 
+        tau3_ = new TH1F("tau3", "Nsubjettiness 3 axis", 1080, 0, 1); 
+        tau4_ = new TH1F("tau4", "Nsubjettiness 4 axis", 1080, 0, 1); 
+        tau21_ = new TH1F("tau21", "Nsubjettiness ratio", 1080, 0, 1); 
+        tau32_ = new TH1F("tau32", "Nsubjettiness ratio 32", 1080, 0, 1); 
+        n2b1_ = new TH1F("n2b1", "N2 with b1", 1080, -5, 5); 
+        n3b1_ = new TH1F("n3b1", "N3 with b1", 1080, -5, 5); 
 
         //______________________________________________________
         // fatJets Score
@@ -720,11 +769,13 @@ namespace Hist
         hjetScore_ = new TH1F("hjetScore", "the hbb score of the selected hbb fatjet", 1080, 0, 1);
         wjetScore_ = new TH1F("wjetScore", "the wjj score of the selected wjj fatjet", 1080, 0, 1);
         wjjScore_ = new TH1F("wjjScore", "wjj score of fatjets", 1080, 0, 1); 
+
         //_______________________________________________________
         // s-hat variable
         massZH_ = new TH1F("massZH", "Invariant mass of the ZH system", 1080, 0, 3500);
         massZHzoom_ = new TH1F("massZHzoom", "Invariant mass of the ZH system", 1080, 0, 500);
         ST_ = new TH1F("ST", "Scalar sum of VVH system", 1080, 0, 3500);
+        KT_ = new TH1F("KT", "Scalar sum of Hbb pt and VBF jets pt", 1080, 0, 4500);
     }
 
     //_______________________________________________________
@@ -732,9 +783,8 @@ namespace Hist
     void fillHbbFatJetKinematicHistograms()
     {
         ptHbb_->Fill(Analysis::hbbFatJet_.Pt(), Analysis::wgt_);
-        ptWjj_->Fill(Analysis::wjjFatJet_.Pt(), Analysis::wgt_);
         etaHbb_->Fill(Analysis::hbbFatJet_.Eta(), Analysis::wgt_);
-        etaWjj_->Fill(Analysis::wjjFatJet_.Eta(), Analysis::wgt_);
+        phiHbb_->Fill(Analysis::hbbFatJet_.Phi(), Analysis::wgt_);
         massHbb->Fill(Analysis::hbbFatJet_.M(), Analysis::wgt_);
         nFatjets_->Fill(Analysis::fatJets_.size(), Analysis::wgt_);
         for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
@@ -742,6 +792,14 @@ namespace Hist
             wjjScore_->Fill(Analysis::fatJets_[j].wjjScore, Analysis::wgt_);
             softdropmass_->Fill(Analysis::fatJets_[j].mass, Analysis::wgt_);
         }
+        tau1_->Fill(Analysis::tau_[0], Analysis::wgt_);
+        tau2_->Fill(Analysis::tau_[1], Analysis::wgt_);
+        tau3_->Fill(Analysis::tau_[2], Analysis::wgt_);
+        tau4_->Fill(Analysis::tau_[3], Analysis::wgt_);
+        tau21_->Fill(Analysis::tau_[1]/Analysis::tau_[0], Analysis::wgt_);
+        tau32_->Fill(Analysis::tau_[2]/Analysis::tau_[1], Analysis::wgt_);
+        n2b1_->Fill(Analysis::n2b1, Analysis::wgt_);
+        n3b1_->Fill(Analysis::n3b1, Analysis::wgt_);
 
         float max_hbbScore = -999;
         for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
@@ -768,28 +826,46 @@ namespace Hist
         massDiLep->Fill((lep1+lep2).M(), Analysis::wgt_);
         ptDiLep->Fill((lep1+lep2).Pt(), Analysis::wgt_);
         dRLep->Fill(RooUtil::Calc::DeltaR(lep1, lep2), Analysis::wgt_);
+        deltaEtaLep->Fill(TMath::Abs(lep1.Eta()-lep2.Eta()), Analysis::wgt_);
+        deltaEtaLep1FatJet_->Fill(TMath::Abs(lep1.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
+        deltaEtaLep2FatJet_->Fill(TMath::Abs(lep2.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
+        nLep->Fill(Analysis::leptons_.size(), Analysis::wgt_);
     }
 
 
 
     void fillJetsKinematicHistograms()
     {
-        LV wj1 = (Analysis::Wjets_[0]).Pt() > (Analysis::Wjets_[1]).Pt() ? Analysis::Wjets_[0] : Analysis::Wjets_[1];
-        LV wj2 = (Analysis::Wjets_[0]).Pt() > (Analysis::Wjets_[1]).Pt() ? Analysis::Wjets_[1] : Analysis::Wjets_[0];
         LV VBF1 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[0] : Analysis::VBFjets_[1];
         LV VBF2 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[1] : Analysis::VBFjets_[0];
-        ptWjet1_->Fill(wj1.Pt(), Analysis::wgt_);
-        ptWjet2->Fill(wj2.Pt(), Analysis::wgt_);
-        WjetMass->Fill((wj1+wj2).M(), Analysis::wgt_);
+        ptLeading_->Fill(Analysis::leadingJet_.Pt(), Analysis::wgt_);
+        ptSubleading_->Fill(Analysis::subleadingJet_.Pt(), Analysis::wgt_);
+        etaLeading_->Fill(Analysis::leadingJet_.Eta(), Analysis::wgt_);
+        dRjets_->Fill(RooUtil::Calc::DeltaR(Analysis::leadingJet_, Analysis::subleadingJet_), Analysis::wgt_);
+        deltaEtajets_->Fill(TMath::Abs(Analysis::leadingJet_.Eta()-Analysis::subleadingJet_.Eta()), Analysis::wgt_);
+        etaSubleading_->Fill(Analysis::subleadingJet_.Eta(), Analysis::wgt_);
+        phiLeading_->Fill(Analysis::leadingJet_.Phi(), Analysis::wgt_);
+        phiSubleading_->Fill(Analysis::subleadingJet_.Phi(), Analysis::wgt_);
 
         etaVBFjet1->Fill(VBF1.Eta(), Analysis::wgt_);
         etaVBFjet2->Fill(VBF2.Eta(), Analysis::wgt_);
-
         ptVBFjet1->Fill(VBF1.Pt(), Analysis::wgt_);
         ptVBFjet2->Fill(VBF2.Pt(), Analysis::wgt_);
+        mpRatioVBFjet1_->Fill(VBF1.M()/VBF1.Pt(), Analysis::wgt_);
+        mpRatioVBFjet2_->Fill(VBF2.M()/VBF2.Pt(), Analysis::wgt_);
 
+
+        nJets_->Fill(Analysis::jets_.size(), Analysis::wgt_);
+        dRVBF->Fill(RooUtil::Calc::DeltaR(VBF1, VBF2), Analysis::wgt_);
+        dRVBF1FatJet_->Fill(RooUtil::Calc::DeltaR(VBF1, Analysis::hbbFatJet_), Analysis::wgt_);
+        dRVBF2FatJet_->Fill(RooUtil::Calc::DeltaR(VBF2, Analysis::hbbFatJet_), Analysis::wgt_);
+        deltaEtaVBF1FatJet_->Fill(TMath::Abs(VBF1.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
+        deltaEtaVBF2FatJet_->Fill(TMath::Abs(VBF2.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
+        ptDijet->Fill((VBF1+VBF2).Pt(), Analysis::wgt_);
         re_deltaEtaVBF->Fill(TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()), Analysis::wgt_);
         VBFjetMass->Fill((Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M(), Analysis::wgt_);
+        
+        
 
         // Figuring out which combination of VBF jets is good
         float dR11 = RooUtil::Calc::DeltaR(VBF1, Analysis::gen_jet0_);
@@ -827,6 +903,7 @@ namespace Hist
         massZH_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
         massZHzoom_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
         ST_->Fill(Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt() + Analysis::wjjFatJet_.pt(), Analysis::wgt_);
+        KT_->Fill(Analysis::VBFjets_[0].pt() + Analysis::VBFjets_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
     }
     
 
@@ -858,6 +935,14 @@ namespace Hist
             dRhiggs->Write();
         }
         softdropmass_->Write();
+        tau1_->Write();
+        tau2_->Write();
+        tau3_->Write();
+        tau4_->Write();
+        tau21_->Write();
+        tau32_->Write();
+        n2b1_->Write();
+        n3b1_->Write();
         ptLep1->Write();
         ptLep2->Write();
         re_deltaEtaVBF->Write();
@@ -868,29 +953,45 @@ namespace Hist
         massDiLep->Write();
         ptDiLep->Write();
         dRLep->Write();
+        deltaEtaLep->Write();
+        deltaEtaLep1FatJet_->Write();
+        deltaEtaLep2FatJet_->Write();
+        nLep->Write();
+        nJets_->Write();
         etaVBFjet1->Write();
         etaVBFjet2->Write();
         ptVBFjet2->Write();
         ptVBFjet1->Write();
+        mpRatioVBFjet1_->Write();
+        mpRatioVBFjet2_->Write();
         VBFjetMass->Write();
-        ptB1->Write();
-        ptB2->Write();
-        ptWjet1_->Write();
-        ptWjet2->Write();
-        WjetMass->Write();
+        ptDijet->Write();
+        dRVBF->Write();
+        dRVBF1FatJet_->Write();
+        dRVBF2FatJet_->Write();
+        deltaEtaVBF1FatJet_->Write();
+        deltaEtaVBF2FatJet_->Write();
+        ptLeading_->Write();
+        ptSubleading_->Write();
+        etaLeading_->Write();
+        dRjets_->Write();
+        deltaEtajets_->Write();
+        etaSubleading_->Write();
+        phiLeading_->Write();
+        phiSubleading_->Write();
         etaHbb_->Write();
-        etaWjj_->Write();
+        phiHbb_->Write();
         massHbb->Write();
         
         // fatJets Kinematics
         ptHbb_->Write();
-        ptWjj_->Write();
         nFatjets_->Write();
         hbbScore_->Write();
         wjjScore_->Write();
         hjetScore_->Write();
         massZH_->Write();
         ST_->Write();
+        KT_->Write();
         massZHzoom_->Write();
     }
 
@@ -1052,6 +1153,7 @@ int main(int argc, char** argv)
             cut3_events ++;
         }
 
+        
         // Cut#3: Require that there are exactly two leptons
         if (not (Analysis::leptons_.size() ==2 )) {continue; }
         if (not ((Analysis::elecs_.size() == 2) || (Analysis::muons_.size() == 2))) { continue; }
@@ -1077,6 +1179,8 @@ int main(int argc, char** argv)
         LV subleading = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
             
         if (not (leading.Pt() >= 40 && subleading.Pt() >= 30)) {continue;}
+        if (not (TMath::Abs(leading.Eta()<2.4))) {continue; } 
+
         Cutflow::fillCutflow(Cutflow::Cuts::kTwoLightLeptons);
         cut4_events ++;
         
@@ -1086,51 +1190,50 @@ int main(int argc, char** argv)
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
 
-        Hist::fillSHatHistograms();
-        Hist::fillLeptonsKinematicHistograms();
-        Hist::fillHbbFatJetKinematicHistograms();
-        Hist::fillJetsKinematicHistograms();
-
- 
+         
         // Cut#5: Require the Hbb score > 0.8
         float maxhbbscore = Analysis::fatJets_[0].hbbScore;
-        float maxwscore = Analysis::fatJets_[1].hbbScore;
-        int maxwNo = -999;
         int maxHbbNo = -999;
         for (unsigned int ifatjet = 1; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
             if (Analysis::fatJets_[ifatjet].hbbScore >= maxhbbscore) {
                 maxHbbNo = ifatjet;
                 maxhbbscore = Analysis::fatJets_[ifatjet].hbbScore;
             }
-            else if (Analysis::fatJets_[ifatjet].hbbScore <= maxhbbscore && Analysis::fatJets_[ifatjet].hbbScore >= maxwscore) {
-                maxwNo = ifatjet;
-                maxwscore = Analysis::fatJets_[ifatjet].hbbScore;
-            }
         }
-        if (maxhbbscore < 0.9) { continue;}
+        if (maxhbbscore < 0.8) { continue;}
         cut6_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-        if (maxwscore < 0.9) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kWscore);
 
-        
+
         // Cut#6: Require that there are at least 2 pt > 30 GeV jets
-        
         if (not (Analysis::jets_.size() >= 2)) { continue; }
         Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
         cut7_events ++;
 
+        // Cut#7: Require dRVBF > 3.5
+        if (not (RooUtil::Calc::DeltaR(Analysis::VBFjets_[0], Analysis::VBFjets_[1]) > 3.5)) {continue; }
+        Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
+        Hist::fillSHatHistograms();
+        Hist::fillLeptonsKinematicHistograms();
+        Hist::fillHbbFatJetKinematicHistograms();
+        Hist::fillJetsKinematicHistograms();
+
+
+        // Cut#8: Require n3b1 > 0.8
+        if (not (Analysis::n3b1 > 0.8)) {continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::ktempcut);
+
+
+        /*
         // Cut#7: Require mjj > 500, deltaEtajj > 3
         if (not ((Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M() > 500)) { continue;}
         if (not (TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()) > 3)) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kMjj);
         cut8_events ++;
 
-        // Cut#8: window cut of massLL [80,100]
-        if (not (((Analysis::leptons_[0]+Analysis::leptons_[1]).M()) >= 80 && ((Analysis::leptons_[0]+Analysis::leptons_[1]).M()) <= 100)) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kMll);
 
+        
         // Cut#9: Require dRLep<1.5
         LV lep1 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
         LV lep2 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
