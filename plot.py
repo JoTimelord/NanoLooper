@@ -28,7 +28,7 @@ def plot(histname, xaxis_name):
                 #"ratio_xaxis_title":xaxis_name,
                 "print_yield":True,
                 "yield_prec":4,
-                #"signal_scale":10,
+                "signal_scale":10,
                 #"yaxis_log": True,
                 },
     )
@@ -58,8 +58,8 @@ if __name__ == "__main__":
                  "tau2",
                  "tau3",
                  "tau4",
-                 "tau21",
-                 "tau32",
+                 "tau42",
+                 "tau43",
                  "n2b1",
                  "n3b1",
                  "h_cutflow",
@@ -67,9 +67,12 @@ if __name__ == "__main__":
                  "ptHbb",
                  "etaHbb",
                  "massHbb",
-                 "hbbScore",
+                 "wScore",
+                 "zScore",
+                 "ptMET",
+                 "phiMET",
+                 "EtMET",
                  "KT",
-
                  "re_deltaEtaVBF",
                  )
 

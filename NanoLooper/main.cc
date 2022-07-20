@@ -13,6 +13,7 @@
 //=================================================================================================
 namespace Obj
 {
+
     //_______________________________________________________
     // Electron data structure
     struct Elec
@@ -41,7 +42,6 @@ namespace Obj
         LV p4;
         int JetIdx; // Overlapping jet index
         float hbbScore;
-        float wjjScore;
         float isBtagScore;
         int isBtagTight;
         int isBtagLoose;
@@ -52,6 +52,8 @@ namespace Obj
         float tau4;
         float n2b1;
         float n3b1;
+        float wQCDScore;
+        float zQCDScore;
     };
     
 }
@@ -114,10 +116,13 @@ namespace Analysis
     // Fat Jets reconstruction
     std::vector<Obj::Jet> fatJets_;
     std::vector<float> tau_(4);
+    std::vector<float> mets_(3);
     LV hbbFatJet_;
     LV wjjFatJet_;
     float n2b1;
     float n3b1;
+    float wvsQCD;
+    float zvsQCD;
  
 
     //_______________________________________________________
@@ -168,6 +173,7 @@ namespace Analysis
         jets_.clear();
         fatJets_.clear();
         tau_.clear();
+        mets_.clear();
         leptons_.clear();
         VBFjets_.clear();
         bjets_.clear();
@@ -177,6 +183,8 @@ namespace Analysis
         wjjFatJet_ = LV();
         n2b1 = 0;
         n3b1 = 0.5;
+        wvsQCD = 0;
+        zvsQCD = 0;
 
     }
 
@@ -265,7 +273,16 @@ namespace Analysis
         }
     }
 
-    
+    //_______________________________________________________
+    // Select MET
+    void readMET()
+    {
+        mets_[0] = nt.MET_pt();
+        mets_[1] = nt.MET_phi();
+        mets_[2] = nt.MET_sumEt();
+    }
+
+   
 
     //_______________________________________________________
     // Select electrons
@@ -350,9 +367,7 @@ namespace Analysis
             p4.SetPtEtaPhiM(nt.FatJet_pt()[ifatjet], nt.FatJet_eta()[ifatjet], nt.FatJet_phi()[ifatjet], 
                             nt.FatJet_msoftdrop()[ifatjet]);
             this_fatJet.p4 = RooUtil::Calc::getLV(p4);
-            // this_fatJet.hbbScore = nt.FatJet_btagDDBvLV2()[ifatjet];
             this_fatJet.hbbScore = nt.FatJet_particleNet_HbbvsQCD()[ifatjet];
-            this_fatJet.wjjScore = nt.FatJet_deepTagMD_WvsQCD()[ifatjet];
             this_fatJet.JetIdx = -999;
             this_fatJet.tau1 = nt.FatJet_tau1()[ifatjet];
             this_fatJet.tau2 = nt.FatJet_tau2()[ifatjet];
@@ -360,6 +375,8 @@ namespace Analysis
             this_fatJet.tau4 = nt.FatJet_tau4()[ifatjet];
             this_fatJet.n2b1 = nt.FatJet_n2b1()[ifatjet];
             this_fatJet.n3b1 = nt.FatJet_n3b1()[ifatjet];
+            this_fatJet.wQCDScore = nt.FatJet_particleNet_WvsQCD()[ifatjet];
+            this_fatJet.zQCDScore = nt.FatJet_particleNet_ZvsQCD()[ifatjet];
             fatJets_.push_back(this_fatJet);
         }
         
@@ -382,6 +399,8 @@ namespace Analysis
             tau_[3] = fatJets_[maxHbbNo].tau4;
             n2b1 = fatJets_[maxHbbNo].n2b1;
             n3b1 = fatJets_[maxHbbNo].n3b1;
+            wvsQCD = fatJets_[maxHbbNo].wQCDScore;
+            zvsQCD = fatJets_[maxHbbNo].zQCDScore;
         }
     }
 
@@ -519,6 +538,7 @@ namespace Analysis
         Analysis::computeSignalGeneratorLevelKinematics();
 
         // Select electrons and muons
+        Analysis::readMET();
         Analysis::selectElectrons();
         Analysis::selectMuons();
         Analysis::selectFatJets();
@@ -549,10 +569,10 @@ namespace Cutflow
         kWjj,
         kTwoLightLeptons,
         kOneHbbFatJet,
+        kN3B1,
         kHbbScore,
         kAtLeastTwoPt30Jets,
         kdRVBF,
-        ktempcut,
         kNCuts,
     };
 
@@ -604,6 +624,11 @@ namespace Hist
     TH1F* h_gen_massbQsystem_;
     TH1F* h_gen_ptb0_;
     TH1F* h_gen_ptb1_;
+    
+    // MET_
+    TH1F* ptMET_;
+    TH1F* phiMET_;
+    TH1F* EtMET_;
 
     // leptons_
     TH1F* ptLep1;
@@ -659,20 +684,26 @@ namespace Hist
     TH1F* massHbb;
     TH1F* nFatjets_;
     TH1F* softdropmass_;
+
+    // FatJets substructure observables
     TH1F* tau1_;
     TH1F* tau2_;
     TH1F* tau3_;
     TH1F* tau4_;
     TH1F* tau21_;
     TH1F* tau32_;
+    TH1F* tau41_;
+    TH1F* tau31_;
+    TH1F* tau42_;
+    TH1F* tau43_;
     TH1F* n2b1_;
     TH1F* n3b1_;
 
     // FatJetScore
-    TH1F* wjjScore_;
-    TH1F* wjetScore_;
     TH1F* hbbScore_;
     TH1F* hjetScore_;
+    TH1F* zScore_;
+    TH1F* wScore_;
 
     // s-hat variable
     TH1F* massZH_;
@@ -704,6 +735,12 @@ namespace Hist
         h_gen_deltaEta_ = new TH1F("h_gen_deltaEta", "Delta Eta of VBF quarks", 1080, 0, 10);
         h_gen_massVBF_ = new TH1F("h_gen_massVBF", "Invariant mass of VBF quark system", 1080, 0, 3500);
 
+        //______________________________________________________
+        // MET
+        ptMET_ = new TH1F("ptMET", "missing transverse momentum", 1080, 0, 1000);
+        phiMET_ = new TH1F("phiMET", "missing transverse momentum phi", 1080, -5, 5);
+        EtMET_ = new TH1F("EtMET", "missing transverse momentum Et", 1080, 0, 4500);
+        
         //______________________________________________________
         // Leptons kinematics
         ptLep1 = new TH1F("ptLep1", "pt of leading leptons_", 1080, 0, 600);
@@ -754,12 +791,19 @@ namespace Hist
         massHbb = new TH1F("massHbb", "mass of Hbb fatjet", 1080, 0, 200);
         nFatjets_ = new TH1F("nFatjets", "Number of fatjets", 5, 0, 5);
         softdropmass_ = new TH1F("softdropmass", "softdrop mass of hbb fatjets", 1080, 0, 200);
+
+        //______________________________________________________
+        // fatJets substructure observables
         tau1_ = new TH1F("tau1", "Nsubjettiness 1 axis", 1080, 0, 1); 
         tau2_ = new TH1F("tau2", "Nsubjettiness 2 axis", 1080, 0, 1); 
         tau3_ = new TH1F("tau3", "Nsubjettiness 3 axis", 1080, 0, 1); 
         tau4_ = new TH1F("tau4", "Nsubjettiness 4 axis", 1080, 0, 1); 
         tau21_ = new TH1F("tau21", "Nsubjettiness ratio", 1080, 0, 1); 
         tau32_ = new TH1F("tau32", "Nsubjettiness ratio 32", 1080, 0, 1); 
+        tau41_ = new TH1F("tau41", "Nsubjettiness ratio 41", 1080, 0, 1); 
+        tau31_ = new TH1F("tau31", "Nsubjettiness ratio 31", 1080, 0, 1); 
+        tau42_ = new TH1F("tau42", "Nsubjettiness ratio 42", 1080, 0, 1); 
+        tau43_ = new TH1F("tau43", "Nsubjettiness ratio 43", 1080, 0, 1); 
         n2b1_ = new TH1F("n2b1", "N2 with b1", 1080, -5, 5); 
         n3b1_ = new TH1F("n3b1", "N3 with b1", 1080, -5, 5); 
 
@@ -767,8 +811,8 @@ namespace Hist
         // fatJets Score
         hbbScore_ = new TH1F("hbbScore", "hbb score of fatjets", 1080, 0, 1);
         hjetScore_ = new TH1F("hjetScore", "the hbb score of the selected hbb fatjet", 1080, 0, 1);
-        wjetScore_ = new TH1F("wjetScore", "the wjj score of the selected wjj fatjet", 1080, 0, 1);
-        wjjScore_ = new TH1F("wjjScore", "wjj score of fatjets", 1080, 0, 1); 
+        wScore_ = new TH1F("wScore", "the particleNet w score of the fatjet with highest hbb", 1080, 0, 1);
+        zScore_ = new TH1F("zScore", "the particleNet z score of the fatjet with highest hbb", 1080, 0, 1);
 
         //_______________________________________________________
         // s-hat variable
@@ -789,7 +833,6 @@ namespace Hist
         nFatjets_->Fill(Analysis::fatJets_.size(), Analysis::wgt_);
         for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
             hbbScore_->Fill(Analysis::fatJets_[j].hbbScore, Analysis::wgt_);
-            wjjScore_->Fill(Analysis::fatJets_[j].wjjScore, Analysis::wgt_);
             softdropmass_->Fill(Analysis::fatJets_[j].mass, Analysis::wgt_);
         }
         tau1_->Fill(Analysis::tau_[0], Analysis::wgt_);
@@ -798,6 +841,10 @@ namespace Hist
         tau4_->Fill(Analysis::tau_[3], Analysis::wgt_);
         tau21_->Fill(Analysis::tau_[1]/Analysis::tau_[0], Analysis::wgt_);
         tau32_->Fill(Analysis::tau_[2]/Analysis::tau_[1], Analysis::wgt_);
+        tau41_->Fill(Analysis::tau_[3]/Analysis::tau_[0], Analysis::wgt_);
+        tau31_->Fill(Analysis::tau_[2]/Analysis::tau_[0], Analysis::wgt_);
+        tau42_->Fill(Analysis::tau_[3]/Analysis::tau_[1], Analysis::wgt_);
+        tau43_->Fill(Analysis::tau_[3]/Analysis::tau_[2], Analysis::wgt_);
         n2b1_->Fill(Analysis::n2b1, Analysis::wgt_);
         n3b1_->Fill(Analysis::n3b1, Analysis::wgt_);
 
@@ -809,6 +856,16 @@ namespace Hist
             }
         }
         hjetScore_->Fill(max_hbbScore, Analysis::wgt_);
+        wScore_->Fill(Analysis::wvsQCD, Analysis::wgt_);
+        zScore_->Fill(Analysis::zvsQCD, Analysis::wgt_);
+    }
+
+    //_______________________________________________________
+    // Fill MET histograms
+    void fillMETHistograms() {
+        ptMET_->Fill(Analysis::mets_[0], Analysis::wgt_);
+        phiMET_->Fill(Analysis::mets_[1], Analysis::wgt_);
+        EtMET_->Fill(Analysis::mets_[2], Analysis::wgt_);
     }
 
     //_______________________________________________________
@@ -941,8 +998,15 @@ namespace Hist
         tau4_->Write();
         tau21_->Write();
         tau32_->Write();
+        tau41_->Write();
+        tau43_->Write();
+        tau42_->Write();
+        tau31_->Write();
         n2b1_->Write();
         n3b1_->Write();
+        ptMET_->Write();
+        phiMET_->Write();
+        EtMET_->Write();
         ptLep1->Write();
         ptLep2->Write();
         re_deltaEtaVBF->Write();
@@ -987,8 +1051,9 @@ namespace Hist
         ptHbb_->Write();
         nFatjets_->Write();
         hbbScore_->Write();
-        wjjScore_->Write();
         hjetScore_->Write();
+        wScore_->Write();
+        zScore_->Write();
         massZH_->Write();
         ST_->Write();
         KT_->Write();
@@ -1190,7 +1255,18 @@ int main(int argc, char** argv)
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
 
-         
+        // Cut#5: Require n3b1 > 0.8
+        if (not (Analysis::n3b1 > 0.8)) {continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
+
+        // Cut#6: Require that there are at least 2 pt > 30 GeV jets
+        if (not (Analysis::jets_.size() >= 2)) { continue; }
+        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
+        cut7_events ++;
+
+
+
+        /* 
         // Cut#5: Require the Hbb score > 0.8
         float maxhbbscore = Analysis::fatJets_[0].hbbScore;
         int maxHbbNo = -999;
@@ -1203,26 +1279,18 @@ int main(int argc, char** argv)
         if (maxhbbscore < 0.8) { continue;}
         cut6_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-
-
-        // Cut#6: Require that there are at least 2 pt > 30 GeV jets
-        if (not (Analysis::jets_.size() >= 2)) { continue; }
-        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
-        cut7_events ++;
+        
 
         // Cut#7: Require dRVBF > 3.5
         if (not (RooUtil::Calc::DeltaR(Analysis::VBFjets_[0], Analysis::VBFjets_[1]) > 3.5)) {continue; }
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
+        */
 
         Hist::fillSHatHistograms();
+        Hist::fillMETHistograms();
         Hist::fillLeptonsKinematicHistograms();
         Hist::fillHbbFatJetKinematicHistograms();
         Hist::fillJetsKinematicHistograms();
-
-
-        // Cut#8: Require n3b1 > 0.8
-        if (not (Analysis::n3b1 > 0.8)) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::ktempcut);
 
 
         /*
