@@ -568,10 +568,10 @@ namespace Cutflow
         kHbb,
         kWjj,
         kTwoLightLeptons,
+        kAtLeastTwoPt30Jets,
         kOneHbbFatJet,
         kN3B1,
         kHbbScore,
-        kAtLeastTwoPt30Jets,
         kdRVBF,
         kNCuts,
     };
@@ -603,6 +603,33 @@ namespace Cutflow
     } 
 
 }
+//=================================================================================================
+// For the temporary purpose of extrapolation 
+// Naming convention: "h2_" (i.e. Starts with "h2_" and ends with "_")
+//=================================================================================================
+namespace Extrapolate
+{
+    TH2F* h2_hbb_n3b1_;
+    TH2F* h2_z_n3b1_;
+
+    void bookExtrapolate() {
+        h2_hbb_n3b1_ = new TH2F("h2_hbb_n3b1", "the extrapolation between hbb and n3b1", 10, 0, 1, 6, -3, 3); 
+        h2_z_n3b1_ = new TH2F("h2_z_n3b1", "the extrapolation between z and n3b1", 10, 0, 5, 6, -3, 3);
+    }
+    void fillExtrapolate() {
+        for (int ifatjet = 0; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
+            h2_hbb_n3b1_->Fill(Analysis::fatJets_[ifatjet].hbbScore, Analysis::fatJets_[ifatjet].n3b1, Analysis::wgt_);
+            h2_z_n3b1_->Fill(Analysis::fatJets_[ifatjet].zQCDScore, Analysis::fatJets_[ifatjet].n3b1, Analysis::wgt_);
+        }
+    }
+    void writeExtrapolate(TFile* ofile) {
+        h2_hbb_n3b1_->Write();
+        h2_z_n3b1_->Write();
+    }
+}
+
+
+
 
 //=================================================================================================
 // Histograms
@@ -698,6 +725,7 @@ namespace Hist
     TH1F* tau43_;
     TH1F* n2b1_;
     TH1F* n3b1_;
+    TH1F* allN3b1_;
 
     // FatJetScore
     TH1F* hbbScore_;
@@ -806,6 +834,7 @@ namespace Hist
         tau43_ = new TH1F("tau43", "Nsubjettiness ratio 43", 1080, 0, 1); 
         n2b1_ = new TH1F("n2b1", "N2 with b1", 1080, -5, 5); 
         n3b1_ = new TH1F("n3b1", "N3 with b1", 1080, -5, 5); 
+        allN3b1_ = new TH1F("allN3b1", "all N3 with b1", 1080, -5, 5); 
 
         //______________________________________________________
         // fatJets Score
@@ -834,6 +863,7 @@ namespace Hist
         for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
             hbbScore_->Fill(Analysis::fatJets_[j].hbbScore, Analysis::wgt_);
             softdropmass_->Fill(Analysis::fatJets_[j].mass, Analysis::wgt_);
+            allN3b1_->Fill(Analysis::fatJets_[j].n3b1, Analysis::wgt_);
         }
         tau1_->Fill(Analysis::tau_[0], Analysis::wgt_);
         tau2_->Fill(Analysis::tau_[1], Analysis::wgt_);
@@ -992,10 +1022,6 @@ namespace Hist
             dRhiggs->Write();
         }
         softdropmass_->Write();
-        tau1_->Write();
-        tau2_->Write();
-        tau3_->Write();
-        tau4_->Write();
         tau21_->Write();
         tau32_->Write();
         tau41_->Write();
@@ -1004,6 +1030,7 @@ namespace Hist
         tau31_->Write();
         n2b1_->Write();
         n3b1_->Write();
+        allN3b1_->Write();
         ptMET_->Write();
         phiMET_->Write();
         EtMET_->Write();
@@ -1145,13 +1172,13 @@ int main(int argc, char** argv)
     } 
     
 
-
     // Create your output root file
     TFile* output_file = new TFile(output_path.c_str(), "recreate");
 
 
     // Create Histograms
     Hist::bookHistograms();
+    Extrapolate::bookExtrapolate();
 
     // Create Cutflow Histogram
     Cutflow::bookCutflow();
@@ -1248,22 +1275,30 @@ int main(int argc, char** argv)
 
         Cutflow::fillCutflow(Cutflow::Cuts::kTwoLightLeptons);
         cut4_events ++;
-        
-        
+
+        // Cut#4: Require that there are at least 2 pt > 30 GeV jets
+        if (not (Analysis::jets_.size() >= 2)) { continue; }
+        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
+        cut7_events ++;
+
+       
         // Cut#4: Require at least one fatjet with softdropmass > 40 GeV
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
 
+
         // Cut#5: Require n3b1 > 0.8
         if (not (Analysis::n3b1 > 0.8)) {continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
 
-        // Cut#6: Require that there are at least 2 pt > 30 GeV jets
-        if (not (Analysis::jets_.size() >= 2)) { continue; }
-        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
-        cut7_events ++;
 
+        Extrapolate::fillExtrapolate();
+        Hist::fillSHatHistograms();
+        Hist::fillMETHistograms();
+        Hist::fillLeptonsKinematicHistograms();
+        Hist::fillHbbFatJetKinematicHistograms();
+        Hist::fillJetsKinematicHistograms();
 
 
         /* 
@@ -1279,20 +1314,14 @@ int main(int argc, char** argv)
         if (maxhbbscore < 0.8) { continue;}
         cut6_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-        
+        */ 
 
         // Cut#7: Require dRVBF > 3.5
         if (not (RooUtil::Calc::DeltaR(Analysis::VBFjets_[0], Analysis::VBFjets_[1]) > 3.5)) {continue; }
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
-        */
+        
 
-        Hist::fillSHatHistograms();
-        Hist::fillMETHistograms();
-        Hist::fillLeptonsKinematicHistograms();
-        Hist::fillHbbFatJetKinematicHistograms();
-        Hist::fillJetsKinematicHistograms();
-
-
+        
         /*
         // Cut#7: Require mjj > 500, deltaEtajj > 3
         if (not ((Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M() > 500)) { continue;}
@@ -1314,7 +1343,6 @@ int main(int argc, char** argv)
 
 
         // Cut#8: Require etaHbb<1.6
-        /*
         if (not (Analysis::hbbFatJet_.Eta() <= 1.3)) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kEtahbb);
 
@@ -1331,6 +1359,7 @@ int main(int argc, char** argv)
 
     // Write out the histograms
     Hist::writeHistograms(output_file, gen_level);
+    Extrapolate::writeExtrapolate(output_file);
 
     // Write out the cutflow histogram
     Cutflow::writeCutflow(output_file);

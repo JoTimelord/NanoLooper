@@ -28,9 +28,10 @@ def plot(histname, xaxis_name):
                 #"ratio_xaxis_title":xaxis_name,
                 "print_yield":True,
                 "yield_prec":4,
-                "signal_scale":10,
+                "signal_scale":100,
                 #"yaxis_log": True,
                 },
+            skip2d=True,
     )
 
 if __name__ == "__main__":
@@ -74,6 +75,7 @@ if __name__ == "__main__":
                  "EtMET",
                  "KT",
                  "re_deltaEtaVBF",
+                 "allN3b1",
                  )
 
     for name in hist_list:
