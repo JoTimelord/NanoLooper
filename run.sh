@@ -28,7 +28,7 @@ for PROCESS in ${PROCESSES}; do
     IFILE=0
     for INPUTFILE in $(ls ${SAMPLEDIR}/${PROCESS}); do
         IFILE=$((IFILE+1))
-        echo "./runNanoLooper --input ${SAMPLEDIR}/${PROCESS}/${INPUTFILE}  --output outputs/${PROCESS}_${IFILE}.root --scale1fb ${SCALE1FB} > logfiles/${PROCESS}_${IFILE}.log 2>&1" >> .jobs.txt
+        echo "./runNanoLooper --input ${SAMPLEDIR}/${PROCESS}/${INPUTFILE}  --output outputs/${PROCESS}_${IFILE}.dat --scale1fb ${SCALE1FB} > logfiles/${PROCESS}_${IFILE}.log 2>&1" >> .jobs.txt
     done
 done
 

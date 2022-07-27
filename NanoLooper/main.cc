@@ -553,6 +553,40 @@ namespace Analysis
 // Cutflows
 // Naming convention: "h_NAME_" (i.e. Starts with "h_" and ends with "_")
 //=================================================================================================
+namespace Dumpinfo 
+{
+    void dumpParticleInfoHeader(ofstream& ostr) 
+    {
+    // Header
+        ostr << "   index   " << "   hbb Score    " << "  N2B1  " << endl;
+    }
+
+    void dumpParticleInfo(int idx, ofstream& ostr)
+    {
+        float hbb = Analysis::fatJets_[idx].hbbScore;
+        float N2B1 = Analysis::fatJets_[idx].n2b1;
+        ostr << setw(4)  << left  <<                    idx                      << "        "
+            << setw(20)  << left << setprecision(4) << hbb                       
+            << setw(10)  << left << setprecision(4) << N2B1                      << "        ";
+        ostr << endl;
+    }
+ 
+    void dumpParticleInfos(ofstream& ostr)
+    {
+        for (unsigned int idx = 0; idx < Analysis::fatJets_.size(); ++idx)
+        {
+            dumpParticleInfo(idx, ostr);
+        }
+    }
+
+}
+
+
+
+//=================================================================================================
+// Cutflows
+// Naming convention: "h_NAME_" (i.e. Starts with "h_" and ends with "_")
+//=================================================================================================
 namespace Cutflow
 {
     // cutflow
@@ -566,7 +600,7 @@ namespace Cutflow
         kNoSelection = 0,
         kVbs,
         kHbb,
-        kWjj,
+        kWjj, 
         kTwoLightLeptons,
         kAtLeastTwoPt30Jets,
         kOneHbbFatJet,
@@ -575,7 +609,6 @@ namespace Cutflow
         kdRVBF,
         kNCuts,
     };
-
 
 
     //_______________________________________________________
@@ -603,31 +636,6 @@ namespace Cutflow
     } 
 
 }
-//=================================================================================================
-// For the temporary purpose of extrapolation 
-// Naming convention: "h2_" (i.e. Starts with "h2_" and ends with "_")
-//=================================================================================================
-namespace Extrapolate
-{
-    TH2F* h2_hbb_n3b1_;
-    TH2F* h2_z_n3b1_;
-
-    void bookExtrapolate() {
-        h2_hbb_n3b1_ = new TH2F("h2_hbb_n3b1", "the extrapolation between hbb and n3b1", 10, 0, 1, 6, -3, 3); 
-        h2_z_n3b1_ = new TH2F("h2_z_n3b1", "the extrapolation between z and n3b1", 10, 0, 5, 6, -3, 3);
-    }
-    void fillExtrapolate() {
-        for (int ifatjet = 0; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
-            h2_hbb_n3b1_->Fill(Analysis::fatJets_[ifatjet].hbbScore, Analysis::fatJets_[ifatjet].n3b1, Analysis::wgt_);
-            h2_z_n3b1_->Fill(Analysis::fatJets_[ifatjet].zQCDScore, Analysis::fatJets_[ifatjet].n3b1, Analysis::wgt_);
-        }
-    }
-    void writeExtrapolate(TFile* ofile) {
-        h2_hbb_n3b1_->Write();
-        h2_z_n3b1_->Write();
-    }
-}
-
 
 
 
@@ -1173,15 +1181,9 @@ int main(int argc, char** argv)
     
 
     // Create your output root file
-    TFile* output_file = new TFile(output_path.c_str(), "recreate");
+    ofstream extra;
+    extra.open(output_path);
 
-
-    // Create Histograms
-    Hist::bookHistograms();
-    Extrapolate::bookExtrapolate();
-
-    // Create Cutflow Histogram
-    Cutflow::bookCutflow();
 
     // Set scale 1fb (the per event weight normalized for 1/fb)
     Analysis::setScale1fb(scale1fb); 
@@ -1189,7 +1191,7 @@ int main(int argc, char** argv)
     // Set the luminosity
     Analysis::setLumi(137); // TODO: Update properly in the future. For now it's a Placeholder!
 
-   // Set up year dependent configuration of the analysis that are POG specific from CMS
+    // Set up year dependent configuration of the analysis that are POG specific from CMS
     Analysis::setConfig();
 
     // Input Path (RooUtil::Looper can accept comma separated list)
@@ -1209,40 +1211,28 @@ int main(int argc, char** argv)
     // Initializer the looper
     looper.init(events_tchain, &nt, n_events);
 
-    // Tracking cutflow number;
-    int cut1_events = 0;
-    int cut2_events = 0;
-    int cut3_events = 0;
-    int cut4_events = 0;
-    int cut5_events = 0;
-    int cut6_events = 0;
-    int cut7_events = 0;
-    int cut8_events = 0;
+    Dumpinfo::dumpParticleInfoHeader(extra);
     
     // Loop through events
     while (looper.nextEvent())
     {
-	    // dumpGenParticleInfos();
           
         // Run the analysis algorithms (selections, computing variables, etc.)
         Analysis::runAlgorithms();
         // Fill the "counter" histogram
-        Cutflow::fillCutflow(Cutflow::Cuts::kNoSelection);
+        // Cutflow::fillCutflow(Cutflow::Cuts::kNoSelection);
         
 	
         if (gen_level) {
             // Cut#1: Check if vbs
             if (Analysis::is_vbs == false) { continue;}
-            Cutflow::fillCutflow(Cutflow::Cuts::kVbs);
-            cut1_events ++;
+            // Cutflow::fillCutflow(Cutflow::Cuts::kVbs);
             // Cut#2: Check if hbb
             if (Analysis::is_hbb == false) { continue;}
-            Cutflow::fillCutflow(Cutflow::Cuts::kHbb);
-            cut2_events ++;
+            // Cutflow::fillCutflow(Cutflow::Cuts::kHbb);
             // Cut#3: Check if wjj
             if (Analysis::is_wjj == false) { continue;}
-            Cutflow::fillCutflow(Cutflow::Cuts::kWjj);
-            cut3_events ++;
+            // Cutflow::fillCutflow(Cutflow::Cuts::kWjj);
         }
 
         
@@ -1273,32 +1263,23 @@ int main(int argc, char** argv)
         if (not (leading.Pt() >= 40 && subleading.Pt() >= 30)) {continue;}
         if (not (TMath::Abs(leading.Eta()<2.4))) {continue; } 
 
-        Cutflow::fillCutflow(Cutflow::Cuts::kTwoLightLeptons);
-        cut4_events ++;
+        // Cutflow::fillCutflow(Cutflow::Cuts::kTwoLightLeptons);
 
         // Cut#4: Require that there are at least 2 pt > 30 GeV jets
         if (not (Analysis::jets_.size() >= 2)) { continue; }
-        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
-        cut7_events ++;
+        // Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
 
        
         // Cut#4: Require at least one fatjet with softdropmass > 40 GeV
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
-        cut5_events ++;
-        Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
+        // Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
+        
+        Dumpinfo::dumpParticleInfos(extra);
 
 
         // Cut#5: Require n3b1 > 0.8
         if (not (Analysis::n3b1 > 0.8)) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
-
-
-        Extrapolate::fillExtrapolate();
-        Hist::fillSHatHistograms();
-        Hist::fillMETHistograms();
-        Hist::fillLeptonsKinematicHistograms();
-        Hist::fillHbbFatJetKinematicHistograms();
-        Hist::fillJetsKinematicHistograms();
+        // Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
 
 
         /* 
@@ -1312,9 +1293,8 @@ int main(int argc, char** argv)
             }
         }
         if (maxhbbscore < 0.8) { continue;}
-        cut6_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-        */ 
+         
 
         // Cut#7: Require dRVBF > 3.5
         if (not (RooUtil::Calc::DeltaR(Analysis::VBFjets_[0], Analysis::VBFjets_[1]) > 3.5)) {continue; }
@@ -1322,12 +1302,11 @@ int main(int argc, char** argv)
         
 
         
-        /*
+        
         // Cut#7: Require mjj > 500, deltaEtajj > 3
         if (not ((Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M() > 500)) { continue;}
         if (not (TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()) > 3)) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kMjj);
-        cut8_events ++;
 
 
         
@@ -1347,35 +1326,11 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kEtahbb);
 
         */
-        // Fill Lepton Histogram;
-
-        // All cuts have passed
-        // Now fill the histograms
-        if (gen_level) { Hist::fillGenLevelHistograms(); }
-
  
 
     }
 
-    // Write out the histograms
-    Hist::writeHistograms(output_file, gen_level);
-    Extrapolate::writeExtrapolate(output_file);
-
-    // Write out the cutflow histogram
-    Cutflow::writeCutflow(output_file);
-
-    // Produce cutflow events number
-    cout << "The first cut (vbs) produces " << cut1_events << " events." << endl;
-    cout << "The second cut (hbb) produces " << cut2_events << " events." << endl;
-    cout << "The third cut (wjj) produces " << cut3_events << " events." << endl;
-    cout << "The fourth cut (2 OS leptons: ee or uu) produces " << cut4_events << "events." << endl;
-    cout << "The fifth cut (at least one fatjet) produces " << cut5_events << " events." << endl;
-    cout << "The sixth cut (hbb score) produces " << cut6_events << " events." << endl;
-    cout << "The sixth cut (2 jets) produces " << cut7_events << " events." << endl;
-    cout << "The sixth cut (mjj > 500, deltaEtajj) produces " << cut7_events << " events." << endl;
-
-    // Close the file
-    output_file->Close();
+    extra.close();
 
 
     return 0;
