@@ -6,6 +6,7 @@ VBSOSWWH_C2V_4 \
 VBSOSWWH_C2V_3 \
 VBSWZH_C2V_3 \
 VBSWZH_C2V_4 \
+ttdilep \
 WWdilep"
 
 mkdir -p hadds/
