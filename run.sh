@@ -8,6 +8,7 @@ WWinclusive \
 VBSOSWWH_C2V_4 \
 VBSOSWWH_C2V_3 \
 VBSWZH_C2V_3 \
+ttdilep \
 VBSWZH_C2V_4"
 
 rm -f .jobs.txt
@@ -24,6 +25,7 @@ for PROCESS in ${PROCESSES}; do
     if [[ ${PROCESS} == *"DYJETSbkg" ]]; then SCALE1FB=0.01070453308; fi
     if [[ ${PROCESS} == *"WWinclusive" ]]; then SCALE1FB=0.001884495103; fi
     if [[ ${PROCESS} == *"WWdilep" ]]; then SCALE1FB=0.000529248153; fi
+    if [[ ${PROCESS} == *"ttdilep" ]]; then SCALE1FB=0.0002166531446; fi
 
     IFILE=0
     for INPUTFILE in $(ls ${SAMPLEDIR}/${PROCESS}); do
