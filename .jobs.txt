@@ -76,6 +76,10 @@
 ./runNanoLooper --input /home/users/joytzphysics//VBSWZH_C2V_3/output_7.root  --output outputs/VBSWZH_C2V_3_24.dat --scale1fb 5.797057e-6 > logfiles/VBSWZH_C2V_3_24.log 2>&1
 ./runNanoLooper --input /home/users/joytzphysics//VBSWZH_C2V_3/output_8.root  --output outputs/VBSWZH_C2V_3_25.dat --scale1fb 5.797057e-6 > logfiles/VBSWZH_C2V_3_25.log 2>&1
 ./runNanoLooper --input /home/users/joytzphysics//VBSWZH_C2V_3/output_9.root  --output outputs/VBSWZH_C2V_3_26.dat --scale1fb 5.797057e-6 > logfiles/VBSWZH_C2V_3_26.log 2>&1
+./runNanoLooper --input /home/users/joytzphysics//ttdilep/output0.root  --output outputs/ttdilep_1.dat --scale1fb 0.0002166531446 > logfiles/ttdilep_1.log 2>&1
+./runNanoLooper --input /home/users/joytzphysics//ttdilep/output1.root  --output outputs/ttdilep_2.dat --scale1fb 0.0002166531446 > logfiles/ttdilep_2.log 2>&1
+./runNanoLooper --input /home/users/joytzphysics//ttdilep/output2.root  --output outputs/ttdilep_3.dat --scale1fb 0.0002166531446 > logfiles/ttdilep_3.log 2>&1
+./runNanoLooper --input /home/users/joytzphysics//ttdilep/output3.root  --output outputs/ttdilep_4.dat --scale1fb 0.0002166531446 > logfiles/ttdilep_4.log 2>&1
 ./runNanoLooper --input /home/users/joytzphysics//VBSWZH_C2V_4/output0.root  --output outputs/VBSWZH_C2V_4_1.dat --scale1fb 5.641033733e-6 > logfiles/VBSWZH_C2V_4_1.log 2>&1
 ./runNanoLooper --input /home/users/joytzphysics//VBSWZH_C2V_4/output1.root  --output outputs/VBSWZH_C2V_4_2.dat --scale1fb 5.641033733e-6 > logfiles/VBSWZH_C2V_4_2.log 2>&1
 ./runNanoLooper --input /home/users/joytzphysics//VBSWZH_C2V_4/output10.root  --output outputs/VBSWZH_C2V_4_3.dat --scale1fb 5.641033733e-6 > logfiles/VBSWZH_C2V_4_3.log 2>&1

@@ -2,6 +2,10 @@
 
 SAMPLEDIR=/home/users/joytzphysics/
 
+#PROCESSES="VBSOSWWH_C2V_4 \
+#VBSWZH_C2V_4"
+
+
 PROCESSES="DYJETSbkg \
 WWdilep \
 WWinclusive \

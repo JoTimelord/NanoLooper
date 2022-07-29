@@ -123,6 +123,7 @@ namespace Analysis
     float n3b1;
     float wvsQCD;
     float zvsQCD;
+    float maxHbb;
  
 
     //_______________________________________________________
@@ -185,6 +186,8 @@ namespace Analysis
         n3b1 = 0.5;
         wvsQCD = 0;
         zvsQCD = 0;
+        maxHbb = 0;
+        
 
     }
 
@@ -383,13 +386,13 @@ namespace Analysis
         // FatJet Selection
         if (fatJets_.size() > 0) 
         { 
-            float maxhbbscore = -999;
+            maxHbb = -999;
             int maxHbbNo;
         // Prioritize Hbb selection
             for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
-                if (fatJets_[ifatjet].hbbScore >= maxhbbscore) {
+                if (fatJets_[ifatjet].hbbScore >= maxHbb) {
                     maxHbbNo = ifatjet;
-                    maxhbbscore = fatJets_[ifatjet].hbbScore;
+                    maxHbb = fatJets_[ifatjet].hbbScore;
                 }
             }
             hbbFatJet_ = fatJets_[maxHbbNo].p4;
@@ -558,25 +561,36 @@ namespace Dumpinfo
     void dumpParticleInfoHeader(ofstream& ostr) 
     {
     // Header
-        ostr << "   index   " << "   hbb Score    " << "  N2B1  " << endl;
+        ostr << setw(10) << left <<  "index" 
+            << setw(20) << left << "maxhbbscore" 
+            << setw(10) << left << "N3B1" << endl;
     }
 
     void dumpParticleInfo(int idx, ofstream& ostr)
     {
         float hbb = Analysis::fatJets_[idx].hbbScore;
+        float zscore = Analysis::fatJets_[idx].zQCDScore;
+        float wscore = Analysis::fatJets_[idx].wQCDScore;
+        float N3B1 = Analysis::fatJets_[idx].n3b1;
         float N2B1 = Analysis::fatJets_[idx].n2b1;
-        ostr << setw(4)  << left  <<                    idx                      << "        "
-            << setw(20)  << left << setprecision(4) << hbb                       
-            << setw(10)  << left << setprecision(4) << N2B1                      << "        ";
+        ostr << setw(10)  << left  << idx 
+            << setw(20)  << left << setprecision(4) << Analysis::maxHbb                      
+            << setw(10)  << left << setprecision(4) << Analysis::n3b1;
         ostr << endl;
     }
  
     void dumpParticleInfos(ofstream& ostr)
     {
+        /*
         for (unsigned int idx = 0; idx < Analysis::fatJets_.size(); ++idx)
         {
             dumpParticleInfo(idx, ostr);
         }
+        */
+        ostr << setw(10)  << left  << 1 
+            << setw(20)  << left << setprecision(4) << Analysis::maxHbb                      
+            << setw(10)  << left << setprecision(4) << Analysis::n3b1;
+        ostr << endl;
     }
 
 }
