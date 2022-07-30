@@ -876,7 +876,7 @@ namespace Hist
         tau42_->Fill(Analysis::tau_[3]/Analysis::tau_[1], Analysis::wgt_);
         tau43_->Fill(Analysis::tau_[3]/Analysis::tau_[2], Analysis::wgt_);
         n2b1_->Fill(Analysis::n2b1, Analysis::wgt_);
-        n3b1_->Fill(Analysis::n3b1, Analysis::wgt_);
+        n3b1_->Fill(Analysis::n3b1);
 
         float max_hbbScore = -999;
         for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
@@ -1266,6 +1266,7 @@ int main(int argc, char** argv)
         }
 
         if (not (is_os)) { continue; }
+
         // Cut#3: Require that the leading leptons Pt >= 40, subleading >= 30
         LV leading = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
         LV subleading = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
@@ -1287,18 +1288,17 @@ int main(int argc, char** argv)
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
 
-
-        // Cut#5: Require n3b1 > 0.8
-        if (not (Analysis::n3b1 > 0.8)) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
-
-
-        Extrapolate::fillExtrapolate();
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
         Hist::fillLeptonsKinematicHistograms();
         Hist::fillHbbFatJetKinematicHistograms();
         Hist::fillJetsKinematicHistograms();
+
+
+        // Cut#5: Require n3b1 > 0.8
+        if (not (Analysis::n3b1 > 0.8)) {continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
+
 
 
         /* 

@@ -1,0 +1,29 @@
+hadd Target file: hadds/VBSOSWWH_C2V_3.root
+hadd compression setting for all ouput: 1
+hadd Source file 1: outputs/VBSOSWWH_C2V_3_1.root
+hadd Source file 2: outputs/VBSOSWWH_C2V_3_10.root
+hadd Source file 3: outputs/VBSOSWWH_C2V_3_11.root
+hadd Source file 4: outputs/VBSOSWWH_C2V_3_12.root
+hadd Source file 5: outputs/VBSOSWWH_C2V_3_13.root
+hadd Source file 6: outputs/VBSOSWWH_C2V_3_14.root
+hadd Source file 7: outputs/VBSOSWWH_C2V_3_15.root
+hadd Source file 8: outputs/VBSOSWWH_C2V_3_16.root
+hadd Source file 9: outputs/VBSOSWWH_C2V_3_17.root
+hadd Source file 10: outputs/VBSOSWWH_C2V_3_18.root
+hadd Source file 11: outputs/VBSOSWWH_C2V_3_19.root
+hadd Source file 12: outputs/VBSOSWWH_C2V_3_2.root
+hadd Source file 13: outputs/VBSOSWWH_C2V_3_20.root
+hadd Source file 14: outputs/VBSOSWWH_C2V_3_21.root
+hadd Source file 15: outputs/VBSOSWWH_C2V_3_22.root
+hadd Source file 16: outputs/VBSOSWWH_C2V_3_23.root
+hadd Source file 17: outputs/VBSOSWWH_C2V_3_24.root
+hadd Source file 18: outputs/VBSOSWWH_C2V_3_25.root
+hadd Source file 19: outputs/VBSOSWWH_C2V_3_26.root
+hadd Source file 20: outputs/VBSOSWWH_C2V_3_3.root
+hadd Source file 21: outputs/VBSOSWWH_C2V_3_4.root
+hadd Source file 22: outputs/VBSOSWWH_C2V_3_5.root
+hadd Source file 23: outputs/VBSOSWWH_C2V_3_6.root
+hadd Source file 24: outputs/VBSOSWWH_C2V_3_7.root
+hadd Source file 25: outputs/VBSOSWWH_C2V_3_8.root
+hadd Source file 26: outputs/VBSOSWWH_C2V_3_9.root
+hadd Target path: hadds/VBSOSWWH_C2V_3.root:/
