@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SAMPLEDIR=/home/users/joytzphysics/
+SAMPLEDIR=/home/users/joytzphysics/VVHStudies/
 
 #PROCESSES="VBSOSWWH_C2V_4 \
 #VBSWZH_C2V_4"
@@ -11,6 +11,7 @@ WWdilep \
 WWinclusive \
 VBSOSWWH_C2V_4 \
 VBSOSWWH_C2V_3 \
+VBSZZH_C2V_3 \
 VBSWZH_C2V_3 \
 ttdilep \
 VBSWZH_C2V_4"
@@ -25,7 +26,8 @@ for PROCESS in ${PROCESSES}; do
     if [[ ${PROCESS} == *"VBSWWH_C2V_3" ]]; then SCALE1FB=5.580557e-6; fi
     if [[ ${PROCESS} == *"VBSWZH_C2V_3" ]]; then SCALE1FB=5.797057e-6; fi
     if [[ ${PROCESS} == *"VBSWZH_C2V_4" ]]; then SCALE1FB=5.641033733e-6; fi
-    if [[ ${PROCESS} == *"VBSZZH_C2V_3" ]]; then SCALE1FB=4.663566e-6; fi
+    if [[ ${PROCESS} == *"VBSZZH_C2V_4" ]]; then SCALE1FB=4.663566e-6; fi
+    if [[ ${PROCESS} == *"VBSZZH_C2V_3" ]]; then SCALE1FB=0.000002088961575; fi
     if [[ ${PROCESS} == *"DYJETSbkg" ]]; then SCALE1FB=0.01070453308; fi
     if [[ ${PROCESS} == *"WWinclusive" ]]; then SCALE1FB=0.001884495103; fi
     if [[ ${PROCESS} == *"WWdilep" ]]; then SCALE1FB=0.000529248153; fi

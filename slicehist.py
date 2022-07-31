@@ -13,8 +13,8 @@ input_path = "/home/users/joytzphysics/NanoLooper/outputs/"
 output_path = "/home/users/joytzphysics/NanoLooper/plots/"
 process_type = ["DYJETSbkg", "VBSOSWWH_C2V_4", "VBSOSWWH_C2V_3","VBSWZH_C2V_4","VBSWZH_C2V_3", "WWdilep", "WWinclusive", "ttdilep"]
 #process_type = ["VBSOSWWH_C2V_4", "VBSWZH_C2V_4"]
-var1_type = "N3B1" # plotted on the y-axis
-var2_type = "maxhbbscore" # plotted on the x-axis
+var1_type = "maxhbbscore" # plotted on the x-axis
+var2_type = "N3B1" # plotted on the y-axis
 xlim = [0,1]
 ylim = [-5, 5]
 zratio = 'k'
@@ -58,9 +58,9 @@ class Process:
         ypos = (self.scorelist[[self.var2name]].to_numpy()).T
         #H, xedges, yedges = np.histogram2d(xpos[0], ypos[0], bins=bin_no, range=[x_range,y_range])
         H, xedges, yedges = np.histogram2d(xpos[0], ypos[0], bins=bin_no)
-        self.ybins = xedges
-        self.xbins = yedges
-        self.events = H
+        self.xbins = xedges
+        self.ybins = yedges
+        self.events = H.T
 
     def plotHeatMap(self, outputname, ratio):
         if ratio == 'k':
@@ -99,8 +99,8 @@ class Process:
                     ha="center", va="center", color="w")
 
         ax.set_title(self.typename+"("+zratio+" events)")
-        plt.xlabel(self.var2name)
-        plt.ylabel(self.var1name)
+        plt.xlabel(self.var1name)
+        plt.ylabel(self.var2name)
         fig.tight_layout()
         plt.savefig(outputname + self.typename + "_heatmap.png")
 
@@ -109,9 +109,9 @@ class Process:
         ax = fig.add_subplot(111, projection='3d')
         colorlist = ['gold', 'turquoise', 'orange', 'aqua', 'violet', 'skyblue'] * (len(self.ybins)-1)
 
-        for i in (0, len(self.xbins)-2):
+        for i in range(len(self.ybins)-1):
             cs = colorlist[i]
-            ax.bar(self.ybins[0:-1], self.events[i], zs=self.xbins[i], zdir='y', color=cs, alpha=0.6, width=self.ybins[-1]-self.ybins[-2])
+            ax.bar(self.xbins[0:-1], self.events[i], zs=self.ybins[i], zdir='y', color=cs, alpha=0.6, width=self.xbins[-1]-self.xbins[-2])
         ax.set_xlabel(self.var1name)
         ax.set_ylabel(self.var2name)
         ax.set_zlabel('raw # of events')
