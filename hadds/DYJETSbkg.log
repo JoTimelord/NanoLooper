@@ -1,9 +1,0 @@
-hadd Target file: hadds/DYJETSbkg.root
-hadd compression setting for all ouput: 1
-hadd Source file 1: outputs/DYJETSbkg_1.root
-hadd Source file 2: outputs/DYJETSbkg_2.root
-hadd Source file 3: outputs/DYJETSbkg_3.root
-hadd Source file 4: outputs/DYJETSbkg_4.root
-hadd Source file 5: outputs/DYJETSbkg_5.root
-hadd Source file 6: outputs/DYJETSbkg_6.root
-hadd Target path: hadds/DYJETSbkg.root:/

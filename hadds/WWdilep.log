@@ -1,7 +1,0 @@
-hadd Target file: hadds/WWdilep.root
-hadd compression setting for all ouput: 1
-hadd Source file 1: outputs/WWdilep_1.root
-hadd Source file 2: outputs/WWdilep_2.root
-hadd Source file 3: outputs/WWdilep_3.root
-hadd Source file 4: outputs/WWdilep_4.root
-hadd Target path: hadds/WWdilep.root:/
