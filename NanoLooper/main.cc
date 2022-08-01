@@ -561,9 +561,9 @@ namespace Dumpinfo
     void dumpParticleInfoHeader(ofstream& ostr) 
     {
     // Header
-        ostr << setw(10) << left <<  "index" 
-            << setw(20) << left << "maxhbbscore" 
-            << setw(10) << left << "wscore" << endl;
+        ostr << setw(20) << left <<  "index" 
+            << setw(20) << left << "ST" 
+            << setw(20) << left << "MassDilep" << endl;
     }
 
     void dumpParticleInfo(int idx, ofstream& ostr)
@@ -587,9 +587,12 @@ namespace Dumpinfo
             dumpParticleInfo(idx, ostr);
         }
         */
-        ostr << setw(10)  << left  << 1 
-            << setw(20)  << left << setprecision(4) << Analysis::maxHbb                      
-            << setw(10)  << left << setprecision(4) << Analysis::wvsQCD;
+
+        float ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt(); 
+        float Mll = (Analysis::leptons_[0] + Analysis::leptons_[1]).M();
+        ostr << setw(20)  << left  << 1 
+            << setw(20)  << left << setprecision(4) << ST                      
+            << setw(20)  << left << setprecision(4) << Mll;
         ostr << endl;
     }
 
@@ -1011,7 +1014,7 @@ namespace Hist
     {
         massZH_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
         massZHzoom_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
-        ST_->Fill(Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt() + Analysis::wjjFatJet_.pt(), Analysis::wgt_);
+        ST_->Fill(Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
         KT_->Fill(Analysis::VBFjets_[0].pt() + Analysis::VBFjets_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
     }
     
@@ -1288,6 +1291,8 @@ int main(int argc, char** argv)
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         // Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
+        if (not (Analysis::maxHbb >= 0.8 || Analysis::wvsQCD >= 0.8)) {continue;}
+
         Dumpinfo::dumpParticleInfos(extra);
 
 

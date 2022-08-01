@@ -13,10 +13,10 @@ input_path = "/home/users/joytzphysics/NanoLooper/outputs/"
 output_path = "/home/users/joytzphysics/NanoLooper/plots/"
 process_type = ["DYJETSbkg", "VBSZZH_C2V_3", "VBSZZH_C2V_4", "VBSOSWWH_C2V_4", "VBSOSWWH_C2V_3","VBSWZH_C2V_4","VBSWZH_C2V_3", "WWdilep", "WWinclusive", "ttdilep"]
 #process_type = ["VBSOSWWH_C2V_4", "VBSWZH_C2V_4"]
-var1_type = "maxhbbscore" # plotted on the x-axis
-var2_type = "wscore" # plotted on the y-axis
-xlim = [0,1]
-ylim = [0,1]
+var1_type = "ST" # plotted on the x-axis
+var2_type = "MassDilep" # plotted on the y-axis
+xlim = [200,1000]
+ylim = [30,700]
 zratio = 'k'
 bins = 15
 
