@@ -122,6 +122,7 @@ namespace Analysis
     float n2b1;
     float n3b1;
     float wvsQCD;
+    float maxhbbscore;
     float zvsQCD;
  
 
@@ -184,6 +185,7 @@ namespace Analysis
         n2b1 = 0;
         n3b1 = 0.5;
         wvsQCD = 0;
+        maxhbbscore = 0;
         zvsQCD = 0;
 
     }
@@ -383,7 +385,7 @@ namespace Analysis
         // FatJet Selection
         if (fatJets_.size() > 0) 
         { 
-            float maxhbbscore = -999;
+            maxhbbscore = -999;
             int maxHbbNo;
         // Prioritize Hbb selection
             for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
@@ -570,8 +572,8 @@ namespace Cutflow
         kTwoLightLeptons,
         kAtLeastTwoPt30Jets,
         kOneHbbFatJet,
-        kN3B1,
         kHbbScore,
+        kN3B1,
         kdRVBF,
         kNCuts,
     };
@@ -989,7 +991,7 @@ namespace Hist
     {
         massZH_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
         massZHzoom_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
-        ST_->Fill(Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt() + Analysis::wjjFatJet_.pt(), Analysis::wgt_);
+        ST_->Fill(Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
         KT_->Fill(Analysis::VBFjets_[0].pt() + Analysis::VBFjets_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
     }
     
@@ -1287,6 +1289,11 @@ int main(int argc, char** argv)
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         cut5_events ++;
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
+        
+        // Cut#5: Combine the requirement of hbb and wvsqcd score
+        if (not (Analysis::maxhbbscore >= 0.8 || Analysis::wvsQCD >= 0.8)) { continue;}
+        
+        Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
@@ -1301,20 +1308,6 @@ int main(int argc, char** argv)
 
 
 
-        /* 
-        // Cut#5: Require the Hbb score > 0.8
-        float maxhbbscore = Analysis::fatJets_[0].hbbScore;
-        int maxHbbNo = -999;
-        for (unsigned int ifatjet = 1; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
-            if (Analysis::fatJets_[ifatjet].hbbScore >= maxhbbscore) {
-                maxHbbNo = ifatjet;
-                maxhbbscore = Analysis::fatJets_[ifatjet].hbbScore;
-            }
-        }
-        if (maxhbbscore < 0.8) { continue;}
-        cut6_events ++;
-        Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-        */ 
 
         // Cut#7: Require dRVBF > 3.5
         if (not (RooUtil::Calc::DeltaR(Analysis::VBFjets_[0], Analysis::VBFjets_[1]) > 3.5)) {continue; }

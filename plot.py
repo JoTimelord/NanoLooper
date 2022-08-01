@@ -6,13 +6,13 @@ def plot(histname, xaxis_name):
 
     p.dump_plot(
         # reference frame (with lower value)
-            #fnames=["hadds/WWdilep.root","hadds/WWinclusive.root"],
+            fnames=["hadds/DYJETSbkg.root","hadds/ttdilep.root"],
             # fnames=["DYJETSbkg1.root"],
             # with larger value
             # data_fname="/home/users/joytzphysics/plots/VBSWWH_4p51.root",
-            sig_fnames=["hadds/VBSWZH_C2V_4.root", "hadds/VBSOSWWH_C2V_4.root"],
-            #legend_labels=["WWdilep","WWinclusive"],
-            signal_labels=["VBSWZH C_{2V}=4", "VBSOSWWH C_{2V}=4"],
+            sig_fnames=["hadds/VBSWZH_C2V_3.root", "hadds/VBSOSWWH_C2V_3.root"],
+            legend_labels=["DYJETS","ttdilep"],
+            signal_labels=["VBSWZH C_{2V}=3", "VBSOSWWH C_{2V}=3"],
             filter_pattern=histname,
             dogrep=False,
             dirname="allcuts",
@@ -55,12 +55,6 @@ if __name__ == "__main__":
                  "deltaEtaLep1FatJet",
                  "mpRatioVBFjet1",
                  "mpRatioVBFjet2",
-                 "tau1",
-                 "tau2",
-                 "tau3",
-                 "tau4",
-                 "tau42",
-                 "tau43",
                  "n2b1",
                  "n3b1",
                  "h_cutflow",
@@ -75,6 +69,7 @@ if __name__ == "__main__":
                  "phiMET",
                  "EtMET",
                  "KT",
+                 "ST",
                  "re_deltaEtaVBF",
                  "allN3b1",
                  )
