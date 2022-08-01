@@ -11,14 +11,14 @@ import shutil
 
 input_path = "/home/users/joytzphysics/NanoLooper/outputs/"
 output_path = "/home/users/joytzphysics/NanoLooper/plots/"
-process_type = ["DYJETSbkg", "VBSOSWWH_C2V_4", "VBSOSWWH_C2V_3","VBSWZH_C2V_4","VBSWZH_C2V_3", "WWdilep", "WWinclusive", "ttdilep"]
+process_type = ["DYJETSbkg", "VBSZZH_C2V_3", "VBSZZH_C2V_4", "VBSOSWWH_C2V_4", "VBSOSWWH_C2V_3","VBSWZH_C2V_4","VBSWZH_C2V_3", "WWdilep", "WWinclusive", "ttdilep"]
 #process_type = ["VBSOSWWH_C2V_4", "VBSWZH_C2V_4"]
 var1_type = "maxhbbscore" # plotted on the x-axis
-var2_type = "N3B1" # plotted on the y-axis
+var2_type = "wscore" # plotted on the y-axis
 xlim = [0,1]
-ylim = [-5, 5]
+ylim = [0,1]
 zratio = 'k'
-bins = 10
+bins = 15
 
 class Process:
     typename = "notnamed"
@@ -34,6 +34,11 @@ class Process:
         self.typename = t
         self.var1name = var1
         self.var2name = var2
+        self.filelist = []
+        self.scorelist = []
+        self.events = []
+        self.ybins = []
+        self.xbins = []
 
     # input name is the directory of the .dat output
     def listfile(self, inputname):
@@ -56,8 +61,8 @@ class Process:
     def binning(self, x_range, y_range, bin_no):
         xpos = (self.scorelist[[self.var1name]].to_numpy()).T
         ypos = (self.scorelist[[self.var2name]].to_numpy()).T
-        #H, xedges, yedges = np.histogram2d(xpos[0], ypos[0], bins=bin_no, range=[x_range,y_range])
-        H, xedges, yedges = np.histogram2d(xpos[0], ypos[0], bins=bin_no)
+        H, xedges, yedges = np.histogram2d(xpos[0], ypos[0], bins=bin_no, range=[x_range, y_range])
+        #H, xedges, yedges = np.histogram2d(xpos[0], ypos[0], bins=bin_no)
         self.xbins = xedges
         self.ybins = yedges
         self.events = H.T

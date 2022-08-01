@@ -563,7 +563,7 @@ namespace Dumpinfo
     // Header
         ostr << setw(10) << left <<  "index" 
             << setw(20) << left << "maxhbbscore" 
-            << setw(10) << left << "N3B1" << endl;
+            << setw(10) << left << "wscore" << endl;
     }
 
     void dumpParticleInfo(int idx, ofstream& ostr)
@@ -589,7 +589,7 @@ namespace Dumpinfo
         */
         ostr << setw(10)  << left  << 1 
             << setw(20)  << left << setprecision(4) << Analysis::maxHbb                      
-            << setw(10)  << left << setprecision(4) << Analysis::n3b1;
+            << setw(10)  << left << setprecision(4) << Analysis::wvsQCD;
         ostr << endl;
     }
 
