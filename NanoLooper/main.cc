@@ -367,8 +367,7 @@ namespace Analysis
 
             // p4
             TLorentzVector p4;
-            p4.SetPtEtaPhiM(nt.FatJet_pt()[ifatjet], nt.FatJet_eta()[ifatjet], nt.FatJet_phi()[ifatjet], 
-                            nt.FatJet_msoftdrop()[ifatjet]);
+            p4.SetPtEtaPhiM(nt.FatJet_pt()[ifatjet], nt.FatJet_eta()[ifatjet], nt.FatJet_phi()[ifatjet], nt.FatJet_msoftdrop()[ifatjet]);
             this_fatJet.p4 = RooUtil::Calc::getLV(p4);
             this_fatJet.hbbScore = nt.FatJet_particleNet_HbbvsQCD()[ifatjet];
             this_fatJet.JetIdx = -999;
@@ -551,10 +550,39 @@ namespace Analysis
     }
 
 }
+//=================================================================================================
+// Observables 
+// Calculate observable values 
+//=================================================================================================
+namespace Observables
+{
+    float dRLep;
+    float MassDilep;
+    float dEtaVBF;
+    float MassVBF;
+    float dRVBF;
+
+    //_______________________________________________________
+    // Calculate all analysis variables
+    void calculateObservables()
+    {
+        LV lep1 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
+        LV lep2 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
+        LV VBF1 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[0] : Analysis::VBFjets_[1];
+        LV VBF2 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[1] : Analysis::VBFjets_[0];
+        dRLep = RooUtil::Calc::DeltaR(lep1, lep2);
+        MassDilep = (Analysis::leptons_[0] + Analysis::leptons_[1]).M();
+        dEtaVBF = TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta());
+        MassVBF = (Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M();
+        dRVBF = RooUtil::Calc::DeltaR(VBF1, VBF2);
+    }
+}
+
+    
 
 //=================================================================================================
-// Cutflows
-// Naming convention: "h_NAME_" (i.e. Starts with "h_" and ends with "_")
+// Dumpinfo 
+// Dump observable values into files 
 //=================================================================================================
 namespace Dumpinfo 
 {
@@ -562,37 +590,16 @@ namespace Dumpinfo
     {
     // Header
         ostr << setw(20) << left <<  "index" 
-            << setw(20) << left << "ST" 
-            << setw(20) << left << "MassDilep" << endl;
+            << setw(20) << left << "MassVBF" 
+            << setw(20) << left << "dRVBF" << endl;
     }
 
-    void dumpParticleInfo(int idx, ofstream& ostr)
-    {
-        float hbb = Analysis::fatJets_[idx].hbbScore;
-        float zscore = Analysis::fatJets_[idx].zQCDScore;
-        float wscore = Analysis::fatJets_[idx].wQCDScore;
-        float N3B1 = Analysis::fatJets_[idx].n3b1;
-        float N2B1 = Analysis::fatJets_[idx].n2b1;
-        ostr << setw(10)  << left  << idx 
-            << setw(20)  << left << setprecision(4) << Analysis::maxHbb                      
-            << setw(10)  << left << setprecision(4) << Analysis::n3b1;
-        ostr << endl;
-    }
- 
     void dumpParticleInfos(ofstream& ostr)
     {
-        /*
-        for (unsigned int idx = 0; idx < Analysis::fatJets_.size(); ++idx)
-        {
-            dumpParticleInfo(idx, ostr);
-        }
-        */
-
         float ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt(); 
-        float Mll = (Analysis::leptons_[0] + Analysis::leptons_[1]).M();
         ostr << setw(20)  << left  << 1 
-            << setw(20)  << left << setprecision(4) << ST                      
-            << setw(20)  << left << setprecision(4) << Mll;
+            << setw(20)  << left << setprecision(4) << Observables::MassVBF
+            << setw(20)  << left << setprecision(4) << Observables::dRVBF;
         ostr << endl;
     }
 
@@ -968,7 +975,7 @@ namespace Hist
 
 
         nJets_->Fill(Analysis::jets_.size(), Analysis::wgt_);
-        dRVBF->Fill(RooUtil::Calc::DeltaR(VBF1, VBF2), Analysis::wgt_);
+        dRVBF->Fill(Observables::dRVBF, Analysis::wgt_);
         dRVBF1FatJet_->Fill(RooUtil::Calc::DeltaR(VBF1, Analysis::hbbFatJet_), Analysis::wgt_);
         dRVBF2FatJet_->Fill(RooUtil::Calc::DeltaR(VBF2, Analysis::hbbFatJet_), Analysis::wgt_);
         deltaEtaVBF1FatJet_->Fill(TMath::Abs(VBF1.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
@@ -1291,15 +1298,16 @@ int main(int argc, char** argv)
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         // Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
+        // Cut#5: W score or hbb score of the ak8 jet with the highest hbb score
         if (not (Analysis::maxHbb >= 0.8 || Analysis::wvsQCD >= 0.8)) {continue;}
 
+        Observables::calculateObservables();
         Dumpinfo::dumpParticleInfos(extra);
 
 
         // Cut#5: Require n3b1 > 0.8
         if (not (Analysis::n3b1 > 0.8)) {continue;}
         // Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
-
 
         /* 
         // Cut#5: Require the Hbb score > 0.8

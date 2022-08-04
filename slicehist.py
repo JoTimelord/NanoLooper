@@ -13,10 +13,10 @@ input_path = "/home/users/joytzphysics/NanoLooper/outputs/"
 output_path = "/home/users/joytzphysics/NanoLooper/plots/"
 process_type = ["DYJETSbkg", "VBSZZH_C2V_3", "VBSZZH_C2V_4", "VBSOSWWH_C2V_4", "VBSOSWWH_C2V_3","VBSWZH_C2V_4","VBSWZH_C2V_3", "WWdilep", "WWinclusive", "ttdilep"]
 #process_type = ["VBSOSWWH_C2V_4", "VBSWZH_C2V_4"]
-var1_type = "ST" # plotted on the x-axis
-var2_type = "MassDilep" # plotted on the y-axis
-xlim = [200,1000]
-ylim = [30,700]
+var1_type = "MassVBF" # plotted on the x-axis
+var2_type = "dRVBF" # plotted on the y-axis
+xlim = [100,3000]
+ylim = [0,9]
 zratio = 'k'
 bins = 15
 
@@ -74,7 +74,7 @@ class Process:
             zscales = self.events/1000000.0
         else:
             zscales = self.events
-        fig = plt.figure(figsize = (10,8))
+        fig = plt.figure(figsize = (12,10))
         ax = fig.add_subplot(111)
         ax.imshow(self.events, interpolation='none', aspect = 'auto')
 
