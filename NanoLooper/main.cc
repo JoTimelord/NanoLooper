@@ -561,20 +561,38 @@ namespace Observables
     float dEtaVBF;
     float MassVBF;
     float dRVBF;
+    float ST;
+    float massZH;
+    LV lep1;
+    LV lep2;
+    LV VBF1;
+    LV VBF2;
 
+    //_______________________________________________________
+    // clear all observables 
+    void clearObservables()
+    {
+        VBF1 = LV();
+        VBF2 = LV();
+        lep1 = LV();
+        lep2 = LV();
+    }
+ 
     //_______________________________________________________
     // Calculate all analysis variables
     void calculateObservables()
     {
-        LV lep1 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
-        LV lep2 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
-        LV VBF1 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[0] : Analysis::VBFjets_[1];
-        LV VBF2 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[1] : Analysis::VBFjets_[0];
+        lep1 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
+        lep2 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
+        VBF1 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[0] : Analysis::VBFjets_[1];
+        VBF2 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[1] : Analysis::VBFjets_[0];
         dRLep = RooUtil::Calc::DeltaR(lep1, lep2);
         MassDilep = (Analysis::leptons_[0] + Analysis::leptons_[1]).M();
         dEtaVBF = TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta());
         MassVBF = (Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M();
         dRVBF = RooUtil::Calc::DeltaR(VBF1, VBF2);
+        ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt();
+        massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M();
     }
 }
 
@@ -878,7 +896,6 @@ namespace Hist
         //_______________________________________________________
         // s-hat variable
         massZH_ = new TH1F("massZH", "Invariant mass of the ZH system", 1080, 0, 3500);
-        massZHzoom_ = new TH1F("massZHzoom", "Invariant mass of the ZH system", 1080, 0, 500);
         ST_ = new TH1F("ST", "Scalar sum of VVH system", 1080, 0, 3500);
         KT_ = new TH1F("KT", "Scalar sum of Hbb pt and VBF jets pt", 1080, 0, 4500);
     }
@@ -1019,9 +1036,8 @@ namespace Hist
     // Fill s-hat kinematic variables
     void fillSHatHistograms()
     {
-        massZH_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
-        massZHzoom_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
-        ST_->Fill(Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
+        massZH_->Fill(Observables::massZH, Analysis::wgt_);
+        ST_->Fill(Observables::ST, Analysis::wgt_);
         KT_->Fill(Analysis::VBFjets_[0].pt() + Analysis::VBFjets_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
     }
     
