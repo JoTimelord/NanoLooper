@@ -605,32 +605,6 @@ namespace Cutflow
     } 
 
 }
-//=================================================================================================
-// For the temporary purpose of extrapolation 
-// Naming convention: "h2_" (i.e. Starts with "h2_" and ends with "_")
-//=================================================================================================
-namespace Extrapolate
-{
-    TH2F* h2_hbb_n3b1_;
-    TH2F* h2_z_n3b1_;
-
-    void bookExtrapolate() {
-        h2_hbb_n3b1_ = new TH2F("h2_hbb_n3b1", "the extrapolation between hbb and n3b1", 10, 0, 1, 6, -3, 3); 
-        h2_z_n3b1_ = new TH2F("h2_z_n3b1", "the extrapolation between z and n3b1", 10, 0, 5, 6, -3, 3);
-    }
-    void fillExtrapolate() {
-        for (int ifatjet = 0; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
-            h2_hbb_n3b1_->Fill(Analysis::fatJets_[ifatjet].hbbScore, Analysis::fatJets_[ifatjet].n3b1, Analysis::wgt_);
-            h2_z_n3b1_->Fill(Analysis::fatJets_[ifatjet].zQCDScore, Analysis::fatJets_[ifatjet].n3b1, Analysis::wgt_);
-        }
-    }
-    void writeExtrapolate(TFile* ofile) {
-        h2_hbb_n3b1_->Write();
-        h2_z_n3b1_->Write();
-    }
-}
-
-
 
 
 //=================================================================================================
@@ -1294,6 +1268,9 @@ int main(int argc, char** argv)
         if (not (Analysis::maxhbbscore >= 0.8 || Analysis::wvsQCD >= 0.8)) { continue;}
         
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
+        
+        // Cut#6: ST > 450
+        if 
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
