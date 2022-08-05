@@ -1314,16 +1314,15 @@ int main(int argc, char** argv)
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         // Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
+        Observables::calculateObservables();
+
         // Cut#5: W score or hbb score of the ak8 jet with the highest hbb score
         if (not (Analysis::maxHbb >= 0.8 || Analysis::wvsQCD >= 0.8)) {continue;}
 
-        Observables::calculateObservables();
         Dumpinfo::dumpParticleInfos(extra);
 
+        // Cut#6: 
 
-        // Cut#5: Require n3b1 > 0.8
-        if (not (Analysis::n3b1 > 0.8)) {continue;}
-        // Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
 
         /* 
         // Cut#5: Require the Hbb score > 0.8
