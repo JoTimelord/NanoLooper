@@ -11,12 +11,13 @@ import shutil
 
 input_path = "/home/users/joytzphysics/NanoLooper/outputs/"
 output_path = "/home/users/joytzphysics/NanoLooper/plots/"
+#process_type = ["VBSZZH_C2V_4"]
 process_type = ["DYJETSbkg", "VBSZZH_C2V_3", "VBSZZH_C2V_4", "VBSOSWWH_C2V_4", "VBSOSWWH_C2V_3","VBSWZH_C2V_4","VBSWZH_C2V_3", "WWdilep", "WWinclusive", "ttdilep"]
 #process_type = ["VBSOSWWH_C2V_4", "VBSWZH_C2V_4"]
-var1_type = "MassVBF" # plotted on the x-axis
-var2_type = "dRVBF" # plotted on the y-axis
-xlim = [100,3000]
-ylim = [0,9]
+var1_type = "tau3" # plotted on the x-axis
+var2_type = "tau4" # plotted on the y-axis
+xlim = [0,0.5]
+ylim = [0,0.5]
 zratio = 'k'
 bins = 15
 

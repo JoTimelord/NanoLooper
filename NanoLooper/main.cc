@@ -558,11 +558,15 @@ namespace Observables
 {
     float dRLep;
     float MassDilep;
+    float ptDilep;
     float dEtaVBF;
     float MassVBF;
     float dRVBF;
     float ST;
     float massZH;
+    float massH;
+    float dRLepFatjet1;
+    float dRLepFatjet2;
     LV lep1;
     LV lep2;
     LV VBF1;
@@ -587,12 +591,17 @@ namespace Observables
         VBF1 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[0] : Analysis::VBFjets_[1];
         VBF2 = (Analysis::VBFjets_[0]).Pt() > (Analysis::VBFjets_[1]).Pt() ? Analysis::VBFjets_[1] : Analysis::VBFjets_[0];
         dRLep = RooUtil::Calc::DeltaR(lep1, lep2);
+        dRLepFatjet1 = RooUtil::Calc::DeltaR(lep1, Analysis::hbbFatJet_);
+        dRLepFatjet2 = RooUtil::Calc::DeltaR(lep2, Analysis::hbbFatJet_);
         MassDilep = (Analysis::leptons_[0] + Analysis::leptons_[1]).M();
+        ptDilep = (lep1+lep2).Pt();
         dEtaVBF = TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta());
         MassVBF = (Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M();
         dRVBF = RooUtil::Calc::DeltaR(VBF1, VBF2);
         ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt();
         massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M();
+        massH = Analysis::hbbFatJet_.M();
+
     }
 }
 
@@ -608,16 +617,15 @@ namespace Dumpinfo
     {
     // Header
         ostr << setw(20) << left <<  "index" 
-            << setw(20) << left << "MassVBF" 
-            << setw(20) << left << "dRVBF" << endl;
+            << setw(20) << left << "tau3" 
+            << setw(20) << left << "tau4" << endl;
     }
 
     void dumpParticleInfos(ofstream& ostr)
     {
-        float ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt(); 
         ostr << setw(20)  << left  << 1 
-            << setw(20)  << left << setprecision(4) << Observables::MassVBF
-            << setw(20)  << left << setprecision(4) << Observables::dRVBF;
+            << setw(20)  << left << setprecision(4) << Analysis::tau_[2]
+            << setw(20)  << left << setprecision(4) << Analysis::tau_[3];
         ostr << endl;
     }
 
@@ -718,7 +726,6 @@ namespace Hist
     TH1F* massDiLep;
     TH1F* ptDiLep;
     TH1F* dRLep; 
-    TH1F* deltaEtaLep;
     TH1F* deltaEtaLep1FatJet_;
     TH1F* deltaEtaLep2FatJet_;
     TH1F* nLep;
@@ -785,7 +792,6 @@ namespace Hist
 
     // s-hat variable
     TH1F* massZH_;
-    TH1F* massZHzoom_;
     TH1F* ST_;
     TH1F* KT_;
 
@@ -830,7 +836,6 @@ namespace Hist
         massDiLep = new TH1F("massDiLep", "mass of dileptons", 1080, 0, 400);
         ptDiLep = new TH1F("ptDiLep", "pt of the dilepton system", 1080, 0, 2500);
         dRLep = new TH1F("dRLep", "delta R between two leptons", 1080, 0, 5);
-        deltaEtaLep = new TH1F("deltaEtaLep", "delta Eta between two leptons", 1080, 0, 5);
         deltaEtaLep1FatJet_ = new TH1F("deltaEtaLep1FatJet", "delta Eta between lepton1 and Fatjet", 1080, 0, 5);
         deltaEtaLep2FatJet_ = new TH1F("deltaEtaLep2FatJet", "delta Eta between lepton2 and Fatjet", 1080, 0, 5);
         nLep = new TH1F("nLep", "number of leptons", 5, 0, 5);
@@ -959,10 +964,9 @@ namespace Hist
         etaLep2->Fill(lep2.Eta(), Analysis::wgt_);
         phiLep1->Fill(lep1.Phi(), Analysis::wgt_);
         phiLep2->Fill(lep2.Phi(), Analysis::wgt_);
-        massDiLep->Fill((lep1+lep2).M(), Analysis::wgt_);
-        ptDiLep->Fill((lep1+lep2).Pt(), Analysis::wgt_);
+        massDiLep->Fill(Observables::MassDilep, Analysis::wgt_);
+        ptDiLep->Fill(Observables::ptDilep, Analysis::wgt_);
         dRLep->Fill(RooUtil::Calc::DeltaR(lep1, lep2), Analysis::wgt_);
-        deltaEtaLep->Fill(TMath::Abs(lep1.Eta()-lep2.Eta()), Analysis::wgt_);
         deltaEtaLep1FatJet_->Fill(TMath::Abs(lep1.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
         deltaEtaLep2FatJet_->Fill(TMath::Abs(lep2.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
         nLep->Fill(Analysis::leptons_.size(), Analysis::wgt_);
@@ -1092,7 +1096,6 @@ namespace Hist
         massDiLep->Write();
         ptDiLep->Write();
         dRLep->Write();
-        deltaEtaLep->Write();
         deltaEtaLep1FatJet_->Write();
         deltaEtaLep2FatJet_->Write();
         nLep->Write();
@@ -1132,7 +1135,6 @@ namespace Hist
         massZH_->Write();
         ST_->Write();
         KT_->Write();
-        massZHzoom_->Write();
     }
 
 }
@@ -1259,6 +1261,8 @@ int main(int argc, char** argv)
           
         // Run the analysis algorithms (selections, computing variables, etc.)
         Analysis::runAlgorithms();
+        Observables::clearObservables();
+
         // Fill the "counter" histogram
         // Cutflow::fillCutflow(Cutflow::Cuts::kNoSelection);
         
@@ -1319,55 +1323,15 @@ int main(int argc, char** argv)
         // Cut#5: W score or hbb score of the ak8 jet with the highest hbb score
         if (not (Analysis::maxHbb >= 0.8 || Analysis::wvsQCD >= 0.8)) {continue;}
 
+
+        // Cut#6: ST > 450
+        if (Observables::ST < 450) { continue;}
+
+
+        // Cut#7: dRVBF > 3.5
+        if (Observables::dRVBF < 3.5) { continue;}
+
         Dumpinfo::dumpParticleInfos(extra);
-
-        // Cut#6: 
-
-
-        /* 
-        // Cut#5: Require the Hbb score > 0.8
-        float maxhbbscore = Analysis::fatJets_[0].hbbScore;
-        int maxHbbNo = -999;
-        for (unsigned int ifatjet = 1; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
-            if (Analysis::fatJets_[ifatjet].hbbScore >= maxhbbscore) {
-                maxHbbNo = ifatjet;
-                maxhbbscore = Analysis::fatJets_[ifatjet].hbbScore;
-            }
-        }
-        if (maxhbbscore < 0.8) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
-         
-
-        // Cut#7: Require dRVBF > 3.5
-        if (not (RooUtil::Calc::DeltaR(Analysis::VBFjets_[0], Analysis::VBFjets_[1]) > 3.5)) {continue; }
-        Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
-        
-
-        
-        
-        // Cut#7: Require mjj > 500, deltaEtajj > 3
-        if (not ((Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M() > 500)) { continue;}
-        if (not (TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()) > 3)) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kMjj);
-
-
-        
-        // Cut#9: Require dRLep<1.5
-        LV lep1 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[0] : Analysis::leptons_[1];
-        LV lep2 = (Analysis::leptons_[0]).Pt() > (Analysis::leptons_[1]).Pt() ? Analysis::leptons_[1] : Analysis::leptons_[0];
-        if (not (RooUtil::Calc::DeltaR(lep1, lep2) <= 1.5)) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kDrlep);
-
-        // Cut#10: Require massZH>250
-        if (not ((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M() >= 215)) { continue; } 
-        Cutflow::fillCutflow(Cutflow::Cuts::kZhmass);
-
-
-        // Cut#8: Require etaHbb<1.6
-        if (not (Analysis::hbbFatJet_.Eta() <= 1.3)) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kEtahbb);
-
-        */
  
 
     }
