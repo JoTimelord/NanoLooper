@@ -1338,7 +1338,7 @@ int main(int argc, char** argv)
         if (Observables::dRVBF < 3.5) { continue;}
 
         // Cut#8: n3b1 > 0
-        if (Analysis::n3b1
+        if (Analysis::n3b1 < 0) { continue;}
 
         Dumpinfo::dumpParticleInfos(extra);
  
