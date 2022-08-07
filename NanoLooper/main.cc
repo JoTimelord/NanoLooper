@@ -54,6 +54,7 @@ namespace Obj
         float n3b1;
         float wQCDScore;
         float zQCDScore;
+        float area;
     };
     
 }
@@ -124,6 +125,7 @@ namespace Analysis
     float wvsQCD;
     float maxhbbscore;
     float zvsQCD;
+    float hbbArea;
  
 
     //_______________________________________________________
@@ -187,7 +189,7 @@ namespace Analysis
         wvsQCD = 0;
         maxhbbscore = 0;
         zvsQCD = 0;
-
+        hbbArea = 0;
     }
 
     //_______________________________________________________
@@ -379,6 +381,7 @@ namespace Analysis
             this_fatJet.n3b1 = nt.FatJet_n3b1()[ifatjet];
             this_fatJet.wQCDScore = nt.FatJet_particleNet_WvsQCD()[ifatjet];
             this_fatJet.zQCDScore = nt.FatJet_particleNet_ZvsQCD()[ifatjet];
+            this_fatJet.area = nt.FatJet_area()[ifatjet];
             fatJets_.push_back(this_fatJet);
         }
         
@@ -403,6 +406,7 @@ namespace Analysis
             n3b1 = fatJets_[maxHbbNo].n3b1;
             wvsQCD = fatJets_[maxHbbNo].wQCDScore;
             zvsQCD = fatJets_[maxHbbNo].zQCDScore;
+            hbbArea = fatJets_[maxHbbNo].area;
         }
     }
 
@@ -1306,6 +1310,8 @@ int main(int argc, char** argv)
         // Cut#7: dRVBF > 3.5
         if (Observables::dRVBF < 3.5) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
+
+        // Cut#8: n3b1 > 0
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
