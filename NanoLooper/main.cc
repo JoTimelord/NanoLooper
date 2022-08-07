@@ -52,6 +52,7 @@ namespace Obj
         float tau4;
         float n2b1;
         float n3b1;
+        float area;
         float wQCDScore;
         float zQCDScore;
     };
@@ -124,6 +125,7 @@ namespace Analysis
     float wvsQCD;
     float zvsQCD;
     float maxHbb;
+    float hbbArea;
  
 
     //_______________________________________________________
@@ -187,8 +189,7 @@ namespace Analysis
         wvsQCD = 0;
         zvsQCD = 0;
         maxHbb = 0;
-        
-
+        hbbArea = 0;
     }
 
     //_______________________________________________________
@@ -379,6 +380,7 @@ namespace Analysis
             this_fatJet.n3b1 = nt.FatJet_n3b1()[ifatjet];
             this_fatJet.wQCDScore = nt.FatJet_particleNet_WvsQCD()[ifatjet];
             this_fatJet.zQCDScore = nt.FatJet_particleNet_ZvsQCD()[ifatjet];
+            this_fatJet.area = nt.FatJet_area()[ifatjet];
             fatJets_.push_back(this_fatJet);
         }
         
@@ -401,6 +403,7 @@ namespace Analysis
             tau_[3] = fatJets_[maxHbbNo].tau4;
             n2b1 = fatJets_[maxHbbNo].n2b1;
             n3b1 = fatJets_[maxHbbNo].n3b1;
+            hbbArea = fatJets_[maxHbbNo].area;
             wvsQCD = fatJets_[maxHbbNo].wQCDScore;
             zvsQCD = fatJets_[maxHbbNo].zQCDScore;
         }
@@ -601,7 +604,6 @@ namespace Observables
         ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt();
         massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M();
         massH = Analysis::hbbFatJet_.M();
-
     }
 }
 
@@ -768,6 +770,7 @@ namespace Hist
     TH1F* massHbb;
     TH1F* nFatjets_;
     TH1F* softdropmass_;
+    TH1F* hbbJetArea_;
 
     // FatJets substructure observables
     TH1F* tau1_;
@@ -874,6 +877,7 @@ namespace Hist
         massHbb = new TH1F("massHbb", "mass of Hbb fatjet", 1080, 0, 200);
         nFatjets_ = new TH1F("nFatjets", "Number of fatjets", 5, 0, 5);
         softdropmass_ = new TH1F("softdropmass", "softdrop mass of hbb fatjets", 1080, 0, 200);
+        hbbJetArea_ = new TH1F("hbbJetArea", "jet area of hbb fatjet", 1080, 0, 400);
 
         //______________________________________________________
         // fatJets substructure observables
@@ -919,6 +923,7 @@ namespace Hist
             softdropmass_->Fill(Analysis::fatJets_[j].mass, Analysis::wgt_);
             allN3b1_->Fill(Analysis::fatJets_[j].n3b1, Analysis::wgt_);
         }
+        hbbJetArea_->Fill(Analysis::hbbArea, Analysis::wgt_);
         tau1_->Fill(Analysis::tau_[0], Analysis::wgt_);
         tau2_->Fill(Analysis::tau_[1], Analysis::wgt_);
         tau3_->Fill(Analysis::tau_[2], Analysis::wgt_);
@@ -1074,6 +1079,7 @@ namespace Hist
             dRhiggs->Write();
         }
         softdropmass_->Write();
+        hbbJetArea_->Write();
         tau21_->Write();
         tau32_->Write();
         tau41_->Write();
@@ -1330,6 +1336,9 @@ int main(int argc, char** argv)
 
         // Cut#7: dRVBF > 3.5
         if (Observables::dRVBF < 3.5) { continue;}
+
+        // Cut#8: n3b1 > 0
+        if (Analysis::n3b1
 
         Dumpinfo::dumpParticleInfos(extra);
  
