@@ -117,7 +117,7 @@ namespace Analysis
     // Fat Jets reconstruction
     std::vector<Obj::Jet> fatJets_;
     std::vector<float> tau_(4);
-    std::vector<float> mets_(3);
+    std::vector<float> mets_(4);
     LV hbbFatJet_;
     LV wjjFatJet_;
     float n2b1;
@@ -284,6 +284,7 @@ namespace Analysis
         mets_[0] = nt.MET_pt();
         mets_[1] = nt.MET_phi();
         mets_[2] = nt.MET_sumEt();
+        mets_[3] = nt.MET_significance();
     }
 
    
@@ -579,6 +580,7 @@ namespace Cutflow
         kHbbScore,
         kST,
         kdRVBF,
+        kMET,
         kN3B1,
         kNCuts,
     };
@@ -1314,6 +1316,10 @@ int main(int argc, char** argv)
         // Cut#7: dRVBF > 3.5
         if (Observables::dRVBF < 3.5) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
+
+        // Cut#8: for significance < 5 MET Et needs to be larger to 2400
+        if (Analysis::mets_[3]<5 && Analysis::mets_[2]<2500) { continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::kMET);
 
         // Cut#8: n3b1 > 0
         if (Analysis::n3b1 < 0) { continue;}
