@@ -3,15 +3,22 @@
 SAMPLEDIR=/home/users/joytzphysics/VVHStudies/
 
 PROCESSES="DYJETSbkg \
-WWdilep \
-WWinclusive \
-VBSOSWWH_C2V_4 \
 VBSOSWWH_C2V_3 \
 VBSWZH_C2V_3 \
-VBSWZH_C2V_4 \
-VBSZZH_C2V_4 \
 VBSZZH_C2V_3 \
 ttdilep"
+
+
+#PROCESSES="DYJETSbkg \
+#WWdilep \
+#WWinclusive \
+#VBSOSWWH_C2V_4 \
+#VBSOSWWH_C2V_3 \
+#VBSWZH_C2V_3 \
+#VBSWZH_C2V_4 \
+#VBSZZH_C2V_4 \
+#VBSZZH_C2V_3 \
+#ttdilep"
 
 rm -f .jobs.txt
 mkdir -p logfiles

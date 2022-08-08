@@ -738,6 +738,7 @@ namespace Hist
     TH1F* massHbb;
     TH1F* nFatjets_;
     TH1F* softdropmass_;
+    TH1F* hbbJetArea_;
 
     // FatJets substructure observables
     TH1F* tau1_;
@@ -845,6 +846,7 @@ namespace Hist
         massHbb = new TH1F("massHbb", "mass of Hbb fatjet", 1080, 0, 200);
         nFatjets_ = new TH1F("nFatjets", "Number of fatjets", 5, 0, 5);
         softdropmass_ = new TH1F("softdropmass", "softdrop mass of hbb fatjets", 1080, 0, 200);
+        hbbJetArea_ = new TH1F("hbbJetArea", "jet area of hbb fatjet", 1080, 0, 5);
 
         //______________________________________________________
         // fatJets substructure observables
@@ -890,6 +892,7 @@ namespace Hist
             softdropmass_->Fill(Analysis::fatJets_[j].mass, Analysis::wgt_);
             allN3b1_->Fill(Analysis::fatJets_[j].n3b1, Analysis::wgt_);
         }
+        hbbJetArea_->Fill(Analysis::hbbArea, Analysis::wgt_);
         tau1_->Fill(Analysis::tau_[0], Analysis::wgt_);
         tau2_->Fill(Analysis::tau_[1], Analysis::wgt_);
         tau3_->Fill(Analysis::tau_[2], Analysis::wgt_);
@@ -1044,6 +1047,7 @@ namespace Hist
             dRhiggs->Write();
         }
         softdropmass_->Write();
+        hbbJetArea_->Write();
         tau21_->Write();
         tau32_->Write();
         tau41_->Write();
@@ -1312,17 +1316,14 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
         // Cut#8: n3b1 > 0
+        if (Analysis::n3b1 < 0) { continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
         Hist::fillLeptonsKinematicHistograms();
         Hist::fillHbbFatJetKinematicHistograms();
         Hist::fillJetsKinematicHistograms();
-
-
-        // Cut#5: Require n3b1 > 0.8
-        if (not (Analysis::n3b1 > 0.8)) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
 
 
 
