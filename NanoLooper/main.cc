@@ -1319,11 +1319,12 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
         // Cut#8: for significance < 5 MET Et needs to be larger to 2400
-        if (Analysis::mets_[3]<5 && Analysis::mets_[2] < 2500) { continue;}
+        if (Analysis::mets_[3] < 5 && Analysis::mets_[2] < 2500) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kMET);
 
         // Cut#9: LeadingJet > 70 
         if (Analysis::leadingJet_.Pt() < 60) {continue;}
+        //       || Analysis::subleadingJet_.Pt() < 40) {continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kJetPt);
 
         // Cut#8: n3b1 > 0
