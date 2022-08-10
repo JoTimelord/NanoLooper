@@ -361,10 +361,10 @@ namespace Analysis
             if (isOverlap)
                 continue;
            
-            // Keep fat jets softdropmass above 40 GeV
+            // Keep fat jets softdropmass above 60 GeV
             float boostedMass = nt.FatJet_msoftdrop()[ifatjet]; 
             this_fatJet.mass = boostedMass;
-            if (not (boostedMass > 40.))
+            if (not (boostedMass > 60.))
                 continue;
 
             // p4
