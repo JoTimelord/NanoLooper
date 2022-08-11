@@ -1303,7 +1303,7 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
         // Cut#5: Combine the requirement of hbb and wvsqcd score
-        if (not (Analysis::maxhbbscore >= 0.8 || Analysis::wvsQCD >= 0.8)) { continue;}
+        if (not (Analysis::maxhbbscore >= 0.8 || (Analysis::wvsQCD >= 0.8 && Observables::dRLep <= 0.5))) { continue;}
         
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
         
