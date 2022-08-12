@@ -581,6 +581,7 @@ namespace Cutflow
         kST,
         kdRVBF,
         kMET,
+        kdRLep,
         kJetPt,
         kN3B1,
         kNCuts,
@@ -1296,14 +1297,13 @@ int main(int argc, char** argv)
         // Cut#4: Require that there are at least 2 pt > 30 GeV jets
         if (not (Analysis::jets_.size() >= 2)) { continue; }
         Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
-
        
         // Cut#4: Require at least one fatjet with softdropmass > 40 GeV
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
         // Cut#5: Combine the requirement of hbb and wvsqcd score
-        if (not (Analysis::maxhbbscore >= 0.8 || (Analysis::wvsQCD >= 0.8 && Observables::dRLep <= 0.5))) { continue;}
+        if (not (Analysis::maxhbbscore >= 0.9 || Analysis::wvsQCD >= 0.9 )) { continue;}
         
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
         
@@ -1319,12 +1319,15 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
         // Cut#8: for significance < 5 MET Et needs to be larger to 2400
-        if (Analysis::mets_[3] < 5 && Analysis::mets_[2] < 2500) { continue;}
+        if (Analysis::mets_[0] < 40 || Analysis::mets_[2] < 2200) {continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kMET);
+
+        // Cut#9: dRLep < 1.5 
+        if (Observables::dRLep > 1.5) {continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::kdRLep);
 
         // Cut#9: LeadingJet > 70 
         if (Analysis::leadingJet_.Pt() < 60) {continue;}
-        //       || Analysis::subleadingJet_.Pt() < 40) {continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kJetPt);
 
         // Cut#8: n3b1 > 0
