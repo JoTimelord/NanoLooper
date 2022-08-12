@@ -580,11 +580,6 @@ namespace Cutflow
         kHbbScore,
         kST,
         kdRVBF,
-        kMET,
-        kdRLep,
-        kJetPt,
-        kN3B1,
-        kWT,
         kNCuts,
     };
 
@@ -658,9 +653,9 @@ namespace Observables
         dEtaVBF = TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta());
         MassVBF = (Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M();
         dRVBF = RooUtil::Calc::DeltaR(VBF1, VBF2);
-        ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt();
+        ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt() + Analysis::mets_[0];
         massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M();
-        WT = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::mets_[0];
+        WT = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::VBFjets_[0].Pt() + Analysis::VBFjets_[1].Pt();
     }
 }
 
@@ -1061,6 +1056,7 @@ namespace Hist
         tau43_->Write();
         tau42_->Write();
         tau31_->Write();
+        tau1_->Write();
         n2b1_->Write();
         n3b1_->Write();
         allN3b1_->Write();
@@ -1301,46 +1297,26 @@ int main(int argc, char** argv)
         if (not (Analysis::jets_.size() >= 2)) { continue; }
         Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
        
-        // Cut#4: Require at least one fatjet with softdropmass > 40 GeV
+        // Cut#5: Require at least one fatjet with softdropmass > 40 GeV
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
-        // Cut#5: Combine the requirement of hbb and wvsqcd score
+        // Cut#6: Combine the requirement of hbb and wvsqcd score
         if (not (Analysis::maxhbbscore >= 0.9 || Analysis::wvsQCD >= 0.9 )) { continue;}
         
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
         
         Observables::calculateObservables();
         
-        // Cut#6: ST > 450
-        if (Observables::ST < 450) { continue;}
+        // Cut#7: ST > 450
+        if (Observables::ST < 900) { continue;}
 
         Cutflow::fillCutflow(Cutflow::Cuts::kST);
 
-        // Cut#7: dRVBF > 3.5
-        if (Observables::dRVBF < 3.5) { continue;}
+        // Cut#8: dRVBF > 4.5
+        if (Observables::dRVBF < 5) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
-        // Cut#8: for significance < 5 MET Et needs to be larger to 2400
-        if (Analysis::mets_[0] < 40 || Analysis::mets_[2] < 2200) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kMET);
-
-        // Cut#9: dRLep < 1.5 
-        if (Observables::dRLep > 1.5) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kdRLep);
-
-        // Cut#9: LeadingJet > 70 
-        if (Analysis::leadingJet_.Pt() < 60) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kJetPt);
-
-        // Cut#8: n3b1 > 0
-        if (Analysis::n3b1 < 0) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
-
-        // Cut#9: WT > 340
-        if (Observables::WT < 340) {continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kWT);
-        
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();

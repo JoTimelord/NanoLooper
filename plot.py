@@ -52,6 +52,8 @@ if __name__ == "__main__":
                  "hbbJetArea",
                  "mpRatioVBFjet1",
                  "mpRatioVBFjet2",
+                 "tau21",
+                 "tau31",
                  "n2b1",
                  "n3b1",
                  "h_cutflow",
