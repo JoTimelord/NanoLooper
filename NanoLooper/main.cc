@@ -584,6 +584,7 @@ namespace Cutflow
         kdRLep,
         kJetPt,
         kN3B1,
+        kWT,
         kNCuts,
     };
 
@@ -628,6 +629,7 @@ namespace Observables
     float dRVBF;
     float ST;
     float massZH;
+    float WT;
     LV lep1;
     LV lep2;
     LV VBF1;
@@ -658,6 +660,7 @@ namespace Observables
         dRVBF = RooUtil::Calc::DeltaR(VBF1, VBF2);
         ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt();
         massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M();
+        WT = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::mets_[0];
     }
 }
 
@@ -1333,6 +1336,11 @@ int main(int argc, char** argv)
         // Cut#8: n3b1 > 0
         if (Analysis::n3b1 < 0) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kN3B1);
+
+        // Cut#9: WT > 340
+        if (Observables::WT < 340) {continue;}
+        Cutflow::fillCutflow(Cutflow::Cuts::kWT);
+        
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
