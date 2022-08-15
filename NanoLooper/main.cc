@@ -1302,21 +1302,25 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
         
         // Cut#6: Combine the requirement of hbb and wvsqcd score
-        if (not (Analysis::maxhbbscore >= 0.9 || Analysis::wvsQCD >= 0.9 )) { continue;}
+        if (not (Analysis::maxhbbscore >= 0.95 || Analysis::wvsQCD >= 0.95 )) { continue;}
         
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
         
         Observables::calculateObservables();
         
-        // Cut#7: ST > 450
-        if (Observables::ST < 900) { continue;}
+        // Cut#7: ST > 950
+        if (Observables::ST < 950) { continue;}
 
         Cutflow::fillCutflow(Cutflow::Cuts::kST);
 
         // Cut#8: dRVBF > 4.5
         if (Observables::dRVBF < 5) { continue;}
-        Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
+        if (TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()) < 5) {continue;}
+
+        if (RooUtil::Calc::DeltaR(Analysis::leadingJet_, Analysis::subleadingJet_) < 3.5) {continue;}
+
+        Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
         Hist::fillSHatHistograms();
         Hist::fillMETHistograms();
