@@ -364,7 +364,7 @@ namespace Analysis
             // Keep fat jets softdropmass above 60 GeV
             float boostedMass = nt.FatJet_msoftdrop()[ifatjet]; 
             this_fatJet.mass = boostedMass;
-            if (not (boostedMass > 60.))
+            if (not (boostedMass > 30.))
                 continue;
 
             // p4
@@ -575,8 +575,8 @@ namespace Cutflow
         kHbb,
         kWjj,
         kTwoLightLeptons,
-        kAtLeastTwoPt30Jets,
         kOneHbbFatJet,
+        kAtLeastTwoPt30Jets,
         kHbbScore,
         kST,
         kdRVBF,
@@ -1132,8 +1132,8 @@ int main(int argc, char** argv)
     int n_events;
      
     // Set the year 
-    Analysis::setYear(2018); // TODO: Update properly in the future. For now it's a Placeholder!
     nt.SetYear(2018);
+    Analysis::setYear(2018); // TODO: Update properly in the future. For now it's a Placeholder!
  
     // Grand option setting
     cxxopts::Options options("\n  $ doAnalysis",  "\n         **********************\n         *                    *\n         *       Looper       *\n         *                    *\n         **********************\n");
@@ -1265,7 +1265,7 @@ int main(int argc, char** argv)
         
         // Cut#3: Require that there are exactly two leptons
         if (not (Analysis::leptons_.size() ==2 )) {continue; }
-        if (not ((Analysis::elecs_.size() == 2) || (Analysis::muons_.size() == 2))) { continue; }
+        // if (not ((Analysis::elecs_.size() == 2) || (Analysis::muons_.size() == 2))) { continue; }
 
         // Cut#3: Require that the two leptons have OS (opposite-sign)
         int is_os = false;
@@ -1293,13 +1293,13 @@ int main(int argc, char** argv)
 
         Cutflow::fillCutflow(Cutflow::Cuts::kTwoLightLeptons);
 
-        // Cut#4: Require that there are at least 2 pt > 30 GeV jets
-        if (not (Analysis::jets_.size() >= 2)) { continue; }
-        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
-       
-        // Cut#5: Require at least one fatjet with softdropmass > 40 GeV
+        // Cut#4: Require at least one fatjet with softdropmass > 40 GeV
         if (not (Analysis::fatJets_.size() >= 1 ) ) { continue;}
         Cutflow::fillCutflow(Cutflow::Cuts::kOneHbbFatJet);
+
+        // Cut#5: Require that there are at least 2 pt > 30 GeV jets
+        if (not (Analysis::jets_.size() >= 2)) { continue; }
+        Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
         
         // Cut#6: Combine the requirement of hbb and wvsqcd score
         if (not (Analysis::maxhbbscore >= 0.95 || Analysis::wvsQCD >= 0.95 )) { continue;}
@@ -1314,7 +1314,7 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kST);
 
         // Cut#8: dRVBF > 4.5
-        if (Observables::dRVBF < 5) { continue;}
+        if (Observables::dRVBF < 4.5) { continue;}
 
         if (TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()) < 5) {continue;}
 
