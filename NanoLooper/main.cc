@@ -34,17 +34,13 @@ namespace Obj
         int pdgid;
     };
 
-
     //_______________________________________________________
-    // Jet data structure
-    struct Jet
+    // Fatjet data structure
+    struct FatJet
     {
         LV p4;
         int JetIdx; // Overlapping jet index
         float hbbScore;
-        float isBtagScore;
-        int isBtagTight;
-        int isBtagLoose;
         double mass;
         float tau1;
         float tau2;
@@ -55,6 +51,17 @@ namespace Obj
         float wQCDScore;
         float zQCDScore;
         float area;
+    };
+ 
+
+    //_______________________________________________________
+    // Jet data structure
+    struct Jet
+    {
+        LV p4;
+        int isBtagScore;
+        int isBtagTight;
+        int isBtagLoose;
     };
     
 }
@@ -115,11 +122,9 @@ namespace Analysis
 
     //________________________________________________________
     // Fat Jets reconstruction
-    std::vector<Obj::Jet> fatJets_;
+    std::vector<Obj::FatJet> fatJets_;
     std::vector<float> tau_(4);
     std::vector<float> mets_(4);
-    LV hbbFatJet_;
-    LV wjjFatJet_;
     float n2b1;
     float n3b1;
     float wvsQCD;
@@ -182,8 +187,6 @@ namespace Analysis
         bjets_.clear();
         leadingJet_ = LV();
         subleadingJet_ = LV();
-        hbbFatJet_ = LV(); 
-        wjjFatJet_ = LV();
         n2b1 = 0;
         n3b1 = 0.5;
         wvsQCD = 0;
@@ -198,7 +201,8 @@ namespace Analysis
     {
         // There are some cases where the event weight is negative
         Double_t sign_of_the_weight = ((nt.Generator_weight() > 0) - (nt.Generator_weight() < 0));
-        Double_t per_event_weight = sign_of_the_weight * Analysis::scale1fb_ * Analysis::lumi_;
+        // Double_t per_event_weight = sign_of_the_weight * Analysis::scale1fb_ * Analysis::lumi_;
+        Double_t per_event_weight = nt.Generator_weight() * Analysis::scale1fb_ * Analysis::lumi_;
         wgt_ = per_event_weight;
     }
 
@@ -334,7 +338,7 @@ namespace Analysis
     {
         for (unsigned int ifatjet = 0; ifatjet < nt.FatJet_pt().size(); ++ifatjet)
         {
-            Obj::Jet this_fatJet;
+            Obj::FatJet this_fatJet;
             // Overlap check against good electrons
             bool isOverlap = false;
             for (unsigned int ilep = 0; ilep < elecs_.size(); ++ilep)
@@ -361,16 +365,16 @@ namespace Analysis
             if (isOverlap)
                 continue;
            
-            // Keep fat jets softdropmass above 60 GeV
+            // Keep fat jets softdropmass above 40 GeV
+            // DON'T CHANGE THIS
             float boostedMass = nt.FatJet_msoftdrop()[ifatjet]; 
             this_fatJet.mass = boostedMass;
-            if (not (boostedMass > 30.))
+            if (not (boostedMass > 40.))
                 continue;
 
             // p4
             TLorentzVector p4;
-            p4.SetPtEtaPhiM(nt.FatJet_pt()[ifatjet], nt.FatJet_eta()[ifatjet], nt.FatJet_phi()[ifatjet], 
-                            nt.FatJet_msoftdrop()[ifatjet]);
+            p4.SetPtEtaPhiM(nt.FatJet_pt()[ifatjet], nt.FatJet_eta()[ifatjet], nt.FatJet_phi()[ifatjet], nt.FatJet_msoftdrop()[ifatjet]);
             this_fatJet.p4 = RooUtil::Calc::getLV(p4);
             this_fatJet.hbbScore = nt.FatJet_particleNet_HbbvsQCD()[ifatjet];
             this_fatJet.JetIdx = -999;
@@ -386,29 +390,6 @@ namespace Analysis
             fatJets_.push_back(this_fatJet);
         }
         
-        // FatJet Selection
-        if (fatJets_.size() > 0) 
-        { 
-            maxhbbscore = -999;
-            int maxHbbNo;
-        // Prioritize Hbb selection
-            for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ifatjet++) {
-                if (fatJets_[ifatjet].hbbScore >= maxhbbscore) {
-                    maxHbbNo = ifatjet;
-                    maxhbbscore = fatJets_[ifatjet].hbbScore;
-                }
-            }
-            hbbFatJet_ = fatJets_[maxHbbNo].p4;
-            tau_[0] = fatJets_[maxHbbNo].tau1;
-            tau_[1] = fatJets_[maxHbbNo].tau2;
-            tau_[2] = fatJets_[maxHbbNo].tau3;
-            tau_[3] = fatJets_[maxHbbNo].tau4;
-            n2b1 = fatJets_[maxHbbNo].n2b1;
-            n3b1 = fatJets_[maxHbbNo].n3b1;
-            wvsQCD = fatJets_[maxHbbNo].wQCDScore;
-            zvsQCD = fatJets_[maxHbbNo].zQCDScore;
-            hbbArea = fatJets_[maxHbbNo].area;
-        }
     }
 
 
@@ -439,7 +420,7 @@ namespace Analysis
             //     if (nt.Jet_puId()[ijet] < 7) // For 2017 "111" (pass tight)
             //         continue;
             // }
-
+            
             // Overlap check against good electrons
             bool isOverlap = false;
             for (unsigned int ilep = 0; ilep < elecs_.size(); ++ilep)
@@ -449,21 +430,33 @@ namespace Analysis
                     isOverlap = true;
                     break;
                 }
-            }
-
-            // Overlap check against good muons
-            for (unsigned int ilep = 0; ilep < muons_.size(); ++ilep)
-            {
-                if (muons_[ilep].jetIdx == (int) ijet)
+                if (RooUtil::Calc::DeltaR(elecs_[ilep].p4, jet_p4) < 0.4)
                 {
                     isOverlap = true;
                     break;
                 }
             }
 
+             // Overlap check against good muons
+            for (unsigned int ilep = 0; ilep < muons_.size(); ++ilep)
+            {
+                if (RooUtil::Calc::DeltaR(muons_[ilep].p4, jet_p4) < 0.4)
+                {
+                    isOverlap = true;
+                    break;
+                }
+                if (muons_[ilep].jetIdx == (int) ijet)
+                {
+                    isOverlap = true;
+                    break;
+                }
+
+            }
+
+
             // Overlap check against good fatjets
-            for (unsigned int ilep = 0; ilep < fatJets_.size(); ++ilep) {
-                if (RooUtil::Calc::DeltaR(fatJets_[ilep].p4, jet_p4) <= 0.8) {
+            for (unsigned int ifatjet = 0; ifatjet < fatJets_.size(); ++ifatjet) {
+                if (RooUtil::Calc::DeltaR(fatJets_[ifatjet].p4, jet_p4) <= 0.8) {
                     isOverlap = true;
                     break;
                 }
@@ -475,6 +468,7 @@ namespace Analysis
                 continue;
 
             // We keep jets above 30 GeV only
+            // This should not be changed
             if (not (jet_p4.pt() > 30.) )
                 continue;
 
@@ -621,14 +615,20 @@ namespace Observables
     float MassDilep;
     float dEtaVBF;
     float MassVBF;
+    float dEtajets;
     float dRVBF;
     float ST;
+    float KT;
     float massZH;
     float WT;
+    float maxW;
+    float maxH;
+    int maxHbbNo;
     LV lep1;
     LV lep2;
     LV VBF1;
     LV VBF2;
+    LV hbbFatJet_;
 
     //_______________________________________________________
     // clear all observables 
@@ -638,6 +638,7 @@ namespace Observables
         VBF2 = LV();
         lep1 = LV();
         lep2 = LV();
+        hbbFatJet_ = LV();
     }
  
     //_______________________________________________________
@@ -653,9 +654,27 @@ namespace Observables
         dEtaVBF = TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta());
         MassVBF = (Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M();
         dRVBF = RooUtil::Calc::DeltaR(VBF1, VBF2);
-        ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::hbbFatJet_.pt() + Analysis::mets_[0];
-        massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M();
+        dEtajets = TMath::Abs(Analysis::leadingJet_.Eta()-Analysis::subleadingJet_.Eta());
+        massZH = (Analysis::leptons_[0] + Analysis::leptons_[1] + Observables::hbbFatJet_).M();
         WT = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::VBFjets_[0].Pt() + Analysis::VBFjets_[1].Pt();
+
+        maxH = -999;
+        
+        for (unsigned int ifatjet = 0; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
+            if (Analysis::fatJets_[ifatjet].hbbScore >= maxH) {
+                maxH = Analysis::fatJets_[ifatjet].hbbScore;
+            }
+        }
+
+        maxW= -999;
+        for (unsigned int ifatjet = 0; ifatjet < Analysis::fatJets_.size(); ifatjet++) {
+            if (Analysis::fatJets_[ifatjet].wQCDScore >= maxW) {
+                maxW = Analysis::fatJets_[ifatjet].wQCDScore;
+            }
+        }
+        hbbFatJet_ = Analysis::fatJets_[maxHbbNo].p4;
+        ST = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Observables::hbbFatJet_.pt() + Analysis::mets_[0];
+        KT = Analysis::leptons_[0].pt() + Analysis::leptons_[1].pt() + Analysis::mets_[0];
     }
 }
 
@@ -742,20 +761,7 @@ namespace Hist
     TH1F* softdropmass_;
     TH1F* hbbJetArea_;
 
-    // FatJets substructure observables
-    TH1F* tau1_;
-    TH1F* tau2_;
-    TH1F* tau3_;
-    TH1F* tau4_;
-    TH1F* tau21_;
-    TH1F* tau32_;
-    TH1F* tau41_;
-    TH1F* tau31_;
-    TH1F* tau42_;
-    TH1F* tau43_;
-    TH1F* n2b1_;
-    TH1F* n3b1_;
-    TH1F* allN3b1_;
+    /* FatJets substructure observables: tau1_, tau2_, tau3_, tau4_, ..., etc. Not very useful in this Analysis */
 
     // FatJetScore
     TH1F* hbbScore_;
@@ -852,6 +858,7 @@ namespace Hist
 
         //______________________________________________________
         // fatJets substructure observables
+        /*
         tau1_ = new TH1F("tau1", "Nsubjettiness 1 axis", 1080, 0, 1); 
         tau2_ = new TH1F("tau2", "Nsubjettiness 2 axis", 1080, 0, 1); 
         tau3_ = new TH1F("tau3", "Nsubjettiness 3 axis", 1080, 0, 1); 
@@ -865,6 +872,7 @@ namespace Hist
         n2b1_ = new TH1F("n2b1", "N2 with b1", 1080, -5, 5); 
         n3b1_ = new TH1F("n3b1", "N3 with b1", 1080, -5, 5); 
         allN3b1_ = new TH1F("allN3b1", "all N3 with b1", 1080, -5, 5); 
+        */
 
         //______________________________________________________
         // fatJets Score
@@ -877,23 +885,25 @@ namespace Hist
         // s-hat variable
         massZH_ = new TH1F("massZH", "Invariant mass of the ZH system", 1080, 0, 3500);
         ST_ = new TH1F("ST", "Scalar sum of VVH system", 1080, 0, 3500);
-        KT_ = new TH1F("KT", "Scalar sum of Hbb pt and VBF jets pt", 1080, 0, 4500);
+        KT_ = new TH1F("KT", "Scalar sum of VBF jets pt and MET", 1080, 0, 4500);
     }
 
     //_______________________________________________________
     // Fill fatjet Histograms
     void fillHbbFatJetKinematicHistograms()
     {
-        ptHbb_->Fill(Analysis::hbbFatJet_.Pt(), Analysis::wgt_);
-        etaHbb_->Fill(Analysis::hbbFatJet_.Eta(), Analysis::wgt_);
-        phiHbb_->Fill(Analysis::hbbFatJet_.Phi(), Analysis::wgt_);
-        massHbb->Fill(Analysis::hbbFatJet_.M(), Analysis::wgt_);
+        ptHbb_->Fill(Observables::hbbFatJet_.Pt(), Analysis::wgt_);
+        etaHbb_->Fill(Observables::hbbFatJet_.Eta(), Analysis::wgt_);
+        phiHbb_->Fill(Observables::hbbFatJet_.Phi(), Analysis::wgt_);
+        massHbb->Fill(Observables::hbbFatJet_.M(), Analysis::wgt_);
         nFatjets_->Fill(Analysis::fatJets_.size(), Analysis::wgt_);
         for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
             hbbScore_->Fill(Analysis::fatJets_[j].hbbScore, Analysis::wgt_);
             softdropmass_->Fill(Analysis::fatJets_[j].mass, Analysis::wgt_);
-            allN3b1_->Fill(Analysis::fatJets_[j].n3b1, Analysis::wgt_);
+            // allN3b1_->Fill(Analysis::fatJets_[j].n3b1, Analysis::wgt_);
         }
+
+        /*
         hbbJetArea_->Fill(Analysis::hbbArea, Analysis::wgt_);
         tau1_->Fill(Analysis::tau_[0], Analysis::wgt_);
         tau2_->Fill(Analysis::tau_[1], Analysis::wgt_);
@@ -907,17 +917,10 @@ namespace Hist
         tau43_->Fill(Analysis::tau_[3]/Analysis::tau_[2], Analysis::wgt_);
         n2b1_->Fill(Analysis::n2b1, Analysis::wgt_);
         n3b1_->Fill(Analysis::n3b1);
+        */
 
-        float max_hbbScore = -999;
-        for (unsigned int j = 0; j < Analysis::fatJets_.size(); j++) {
-            if (max_hbbScore < Analysis::fatJets_[j].hbbScore)
-            {
-                max_hbbScore = Analysis::fatJets_[j].hbbScore;
-            }
-        }
-        hjetScore_->Fill(max_hbbScore, Analysis::wgt_);
-        wScore_->Fill(Analysis::wvsQCD, Analysis::wgt_);
-        zScore_->Fill(Analysis::zvsQCD, Analysis::wgt_);
+        hjetScore_->Fill(Observables::maxH, Analysis::wgt_);
+        wScore_->Fill(Observables::maxW, Analysis::wgt_);
     }
 
     //_______________________________________________________
@@ -944,8 +947,8 @@ namespace Hist
         ptDiLep->Fill((lep1+lep2).Pt(), Analysis::wgt_);
         dRLep->Fill(RooUtil::Calc::DeltaR(lep1, lep2), Analysis::wgt_);
         deltaEtaLep->Fill(TMath::Abs(lep1.Eta()-lep2.Eta()), Analysis::wgt_);
-        deltaEtaLep1FatJet_->Fill(TMath::Abs(lep1.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
-        deltaEtaLep2FatJet_->Fill(TMath::Abs(lep2.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
+        deltaEtaLep1FatJet_->Fill(TMath::Abs(lep1.Eta()-Observables::hbbFatJet_.Eta()), Analysis::wgt_);
+        deltaEtaLep2FatJet_->Fill(TMath::Abs(lep2.Eta()-Observables::hbbFatJet_.Eta()), Analysis::wgt_);
         nLep->Fill(Analysis::leptons_.size(), Analysis::wgt_);
     }
 
@@ -971,10 +974,10 @@ namespace Hist
 
         nJets_->Fill(Analysis::jets_.size(), Analysis::wgt_);
         dRVBF->Fill(Observables::dRVBF, Analysis::wgt_);
-        dRVBF1FatJet_->Fill(RooUtil::Calc::DeltaR(Observables::VBF1, Analysis::hbbFatJet_), Analysis::wgt_);
-        dRVBF2FatJet_->Fill(RooUtil::Calc::DeltaR(Observables::VBF2, Analysis::hbbFatJet_), Analysis::wgt_);
-        deltaEtaVBF1FatJet_->Fill(TMath::Abs(Observables::VBF1.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
-        deltaEtaVBF2FatJet_->Fill(TMath::Abs(Observables::VBF2.Eta()-Analysis::hbbFatJet_.Eta()), Analysis::wgt_);
+        dRVBF1FatJet_->Fill(RooUtil::Calc::DeltaR(Observables::VBF1, Observables::hbbFatJet_), Analysis::wgt_);
+        dRVBF2FatJet_->Fill(RooUtil::Calc::DeltaR(Observables::VBF2, Observables::hbbFatJet_), Analysis::wgt_);
+        deltaEtaVBF1FatJet_->Fill(TMath::Abs(Observables::VBF1.Eta()-Observables::hbbFatJet_.Eta()), Analysis::wgt_);
+        deltaEtaVBF2FatJet_->Fill(TMath::Abs(Observables::VBF2.Eta()-Observables::hbbFatJet_.Eta()), Analysis::wgt_);
         ptDijet->Fill((Observables::VBF1+Observables::VBF2).Pt(), Analysis::wgt_);
         re_deltaEtaVBF->Fill(TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()), Analysis::wgt_);
         VBFjetMass->Fill((Analysis::VBFjets_[0] + Analysis::VBFjets_[1]).M(), Analysis::wgt_);
@@ -1007,7 +1010,7 @@ namespace Hist
         // dR between reco- and gen- level
         dRleadingVBF_->Fill(RooUtil::Calc::DeltaR(VBF1_matched, Analysis::gen_jet0_), Analysis::wgt_);
         dRsubleadingVBF->Fill(RooUtil::Calc::DeltaR(VBF2_matched, Analysis::gen_jet1_), Analysis::wgt_);
-        dRhiggs->Fill(RooUtil::Calc::DeltaR(Analysis::hbbFatJet_, Analysis::gen_H_), Analysis::wgt_);
+        dRhiggs->Fill(RooUtil::Calc::DeltaR(Observables::hbbFatJet_, Analysis::gen_H_), Analysis::wgt_);
 
 
     }
@@ -1015,9 +1018,9 @@ namespace Hist
     // Fill s-hat kinematic variables
     void fillSHatHistograms()
     {
-        massZH_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Analysis::hbbFatJet_).M(), Analysis::wgt_);
+        massZH_->Fill((Analysis::leptons_[0] + Analysis::leptons_[1] + Observables::hbbFatJet_).M(), Analysis::wgt_);
         ST_->Fill(Observables::ST, Analysis::wgt_);
-        KT_->Fill(Analysis::VBFjets_[0].pt() + Analysis::VBFjets_[1].pt() + Analysis::hbbFatJet_.pt(), Analysis::wgt_);
+        KT_->Fill(Observables::KT, Analysis::wgt_);
     }
     
 
@@ -1049,6 +1052,7 @@ namespace Hist
             dRhiggs->Write();
         }
         softdropmass_->Write();
+        /*
         hbbJetArea_->Write();
         tau21_->Write();
         tau32_->Write();
@@ -1060,6 +1064,7 @@ namespace Hist
         n2b1_->Write();
         n3b1_->Write();
         allN3b1_->Write();
+        */
         ptMET_->Write();
         phiMET_->Write();
         EtMET_->Write();
@@ -1109,7 +1114,6 @@ namespace Hist
         hbbScore_->Write();
         hjetScore_->Write();
         wScore_->Write();
-        zScore_->Write();
         massZH_->Write();
         ST_->Write();
         KT_->Write();
@@ -1130,6 +1134,7 @@ int main(int argc, char** argv)
     float scale1fb;
     bool gen_level;
     int n_events;
+    float lumi;
      
     // Set the year 
     nt.SetYear(2018);
@@ -1140,10 +1145,11 @@ int main(int argc, char** argv)
 
     // Read the options
     options.add_options()
-        ("i,input"       , "Comma separated input file list OR if just a directory is provided it will glob all in the directory BUT must end with '/' for the path", cxxopts::value<std::string>())
-        ("o,output"      , "Output file name"                                                                                    , cxxopts::value<std::string>())
-        ("n,nevents"     , "N events to loop over"                                                                               , cxxopts::value<int>()->default_value("-1"))
-        ("s,scale1fb"    , "pass scale1fb of the sample"                                                                         , cxxopts::value<float>())
+        ("i,input", "Comma separated input file list OR if just a directory is provided it will glob all in the directory BUT must end with '/' for the path", cxxopts::value<std::string>())
+        ("o,output", "Output file name", cxxopts::value<std::string>())
+        ("n,nevents", "N events to loop over", cxxopts::value<int>()->default_value("-1"))
+        ("s,scale1fb", "pass scale1fb of the sample", cxxopts::value<float>())
+    	("l,lumi", "pass luminsity of the year", cxxopts::value<float>())
     	("g,gen_level"   , "pass boolean for whether a gen-level analysis should be done"					 , cxxopts::value<bool>()->default_value("false"))
         ("h,help"        , "Print help")
         ;
@@ -1187,6 +1193,13 @@ int main(int argc, char** argv)
     }
 
     //_______________________________________________________________________________
+    // --luminosity
+    if (result.count("lumi"))
+    {
+        lumi = result["lumi"].as<float>();
+    }
+
+    //_______________________________________________________________________________
     // --output
     if (result.count("output"))
     {
@@ -1214,7 +1227,7 @@ int main(int argc, char** argv)
     Analysis::setScale1fb(scale1fb); 
 
     // Set the luminosity
-    Analysis::setLumi(137); // TODO: Update properly in the future. For now it's a Placeholder!
+    Analysis::setLumi(lumi); // TODO: Update properly in the future. For now it's a Placeholder!
 
    // Set up year dependent configuration of the analysis that are POG specific from CMS
     Analysis::setConfig();
@@ -1301,12 +1314,13 @@ int main(int argc, char** argv)
         if (not (Analysis::jets_.size() >= 2)) { continue; }
         Cutflow::fillCutflow(Cutflow::Cuts::kAtLeastTwoPt30Jets);
         
+        Observables::calculateObservables();
+
         // Cut#6: Combine the requirement of hbb and wvsqcd score
-        if (not (Analysis::maxhbbscore >= 0.95 || Analysis::wvsQCD >= 0.95 )) { continue;}
+        if (not (Observables::maxH >= 0.95 || Observables::maxW >= 0.97 )) { continue;}
         
         Cutflow::fillCutflow(Cutflow::Cuts::kHbbScore);
         
-        Observables::calculateObservables();
         
         // Cut#7: ST > 950
         if (Observables::ST < 950) { continue;}
@@ -1314,11 +1328,11 @@ int main(int argc, char** argv)
         Cutflow::fillCutflow(Cutflow::Cuts::kST);
 
         // Cut#8: dRVBF > 4.5
-        if (Observables::dRVBF < 4.5) { continue;}
+        // if (Observables::dRVBF < 4.5) { continue;}
 
         if (TMath::Abs(Analysis::VBFjets_[0].Eta()-Analysis::VBFjets_[1].Eta()) < 5) {continue;}
 
-        if (RooUtil::Calc::DeltaR(Analysis::leadingJet_, Analysis::subleadingJet_) < 3.5) {continue;}
+        if (Observables::dEtajets < 4) {continue;}
 
         Cutflow::fillCutflow(Cutflow::Cuts::kdRVBF);
 
