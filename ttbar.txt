@@ -1,84 +1,0 @@
->>> Cannot configure for year 0!! Values remain unset!
->>> Hostname is uaf-10.t2.ucsd.edu
-inputs : /home/users/joytzphysics/ttbar/137C9ED4-3251-DF45-9846-3DAB4B19A86A.root
-                                                                                                    RooUtil:: Adding /home/users/joytzphysics/ttbar/137C9ED4-3251-DF45-9846-3DAB4B19A86A.root
-                                                                                                    RooUtil:: Start EventLooping
-                                                                                                    RooUtil:: System info:
-uaf-10.t2.ucsd.edu
-Linux uaf-10.t2.ucsd.edu 5.14.13-1.el7.elrepo.x86_64 #1 SMP Fri Oct 15 13:26:13 EDT 2021 x86_64 x86_64 x86_64 GNU/Linux
-Mon Nov 29 21:24:51 PST 2021
-joytzphysics
-/home/users/joytzphysics/NanoLooper
-                                                                                                    RooUtil::  _
-                                                                                                    RooUtil:: /\\
-                                                                                                    RooUtil:: \ \\  \__/ \__/
-                                                                                                    RooUtil::  \ \\ (oo) (oo)  Here we come!
-                                                                                                    RooUtil::   \_\\/~~\_/~~\_
-                                                                                                    RooUtil::  _.-~===========~-._
-                                                                                                    RooUtil:: (___________________)
-                                                                                                    RooUtil::       \_______/
-                                                                                                    RooUtil:: 
-                                                                                                    RooUtil::  Your friendly aliens
-                                                                                                    RooUtil::      Surf & Turf
-                                                                                                    RooUtil:: 
-                                                                                                    RooUtil:: Total Events in this Chain to process = 1
-                                                                                                    RooUtil:: TTreeCache enabled
-                                                                                                    RooUtil:: Looping /home/users/joytzphysics/ttbar/137C9ED4-3251-DF45-9846-3DAB4B19A86A.root/TTree:Events
-                     pt      phi        eta       mass  status Mother_idx  Mother  boson_lep  
--------------------------------------------------------------------------------
-0    g                0        0   2.317e+04           0    21  -1         -          0            , daughters = t          t_bar      d          
-1    d                0        0  -2.291e+04           0    21  -1         -          0            , daughters = 
-2    t            57.62   -1.117       1.516       172.5    22  0          g          0            , daughters = t          
-3    t_bar         85.5    1.188      0.1538         171    22  0          g          0            , daughters = t_bar      
-4    d             63.5   -2.695       1.551           0    23  0          g          0            , daughters = d          
-5    d             62.5   -2.945       1.566           0    44  4          d          0            , daughters = D0         B*0        d          g          c_bar      D*-        e-         e+         
-6    t            34.62   -1.117       1.961       172.7    62  2          t          0            , daughters = W+         b          
-7    t_bar         97.5    1.391     0.09229         171    62  3          t_bar      0            , daughters = W-         b_bar      
-8    W+           73.75   -2.188      0.7812          82    22  6          t          0            , daughters = W+         
-9    b             64.5   0.4639      0.7949           0    23  6          t          0            , daughters = b          B*-        
-10   W+              73   -2.188      0.7852          82    52  8          W+         0            , daughters = e+         nu_e       
-11   W-           110.8    1.742     -0.2871       79.75    22  7          t_bar      0            , daughters = tau-       nu_tau_bar 
-12   b_bar        38.62  -0.3477      0.9277           0    23  7          t_bar      0            , daughters = b_bar      
-13   e+           18.19    2.859      -0.709           0     1  10         W+         1            , daughters = 
-14   nu_e         69.25   -1.938      0.9629           0     1  10         W+         0            , daughters = 
-15   tau-          70.5    1.453      0.2256           0     2  11         W-         0            , daughters = nu_tau     pi-        pi-        pi+        
-16   nu_tau_bar   47.75     2.18     -0.8906           0     1  11         W-         0            , daughters = 
-17   b_bar        38.62  -0.3477      0.9277           0    71  12         b_bar      0            , daughters = 
-18   D0           1.891   -2.109       2.328           0     2  5          d          0            , daughters = 
-19   B*0           33.5  -0.3486      0.9316       5.328     2  5          d          0            , daughters = B0         
-20   d            40.88   -3.016       1.504           0    71  5          d          0            , daughters = 
-21   g            13.72   -2.914       1.609           0    71  5          d          0            , daughters = 
-22   c_bar       0.9863    1.855     -0.2407           0    71  5          d          0            , daughters = 
-23   D*-          1.156    2.438      0.3428       2.008     2  5          d          0            , daughters = D0_bar     
-24   g            19.19   -1.043       2.281           0    71  -1         -          0            , daughters = 
-25   g               25   -1.434       3.328           0    71  -1         -          0            , daughters = 
-26   b            51.62   0.3896      0.7949           0    71  9          b          0            , daughters = 
-27   B*-          49.12   0.3877      0.7969       5.328     2  9          b          0            , daughters = B-         
-28   nu_tau       11.78    1.492       0.208           0     1  15         tau-       0            , daughters = 
-29   pi-          24.81    1.449      0.2344           0     1  15         tau-       0            , daughters = 
-30   pi-          29.81    1.438      0.2275           0     1  15         tau-       0            , daughters = 
-31   pi+          4.266    1.484      0.2095           0     1  15         tau-       0            , daughters = 
-32   B0           33.25  -0.3486      0.9336       5.281     2  19         B*0        0            , daughters = D-         
-33   D0_bar       1.074    2.398      0.3467           0     2  23         D*-        0            , daughters = 
-34   B-              49   0.3877      0.7949       5.281     2  27         B*-        0            , daughters = D*0        
-35   e-         0.009857    2.172      0.8301           0     1  5          d          0            , daughters = 
-36   e+         0.07007    2.133       0.748           0     1  5          d          0            , daughters = 
-37   D-           11.88  -0.3438       0.873           0     2  32         B0         0            , daughters = mu-        nu_mu_bar  
-38   D*0             33   0.4248       0.748       2.008     2  34         B-         0            , daughters = D0         
-39   mu-          1.809  -0.2026      0.8105           0     1  37         D-         0            , daughters = 
-40   nu_mu_bar    2.422  -0.5352       0.918           0     1  37         D-         0            , daughters = 
-41   D0           30.31   0.4209       0.752           0     2  38         D*0        0            , daughters = 
-                                                                                                    RooUtil:: 
-                                                                                                    RooUtil::    \__/    \__/
-                                                                                                    RooUtil::  S (oo)    (oo)
-                                                                                                    RooUtil:: (\//~~\\  //~~\\
-                                                                                                    RooUtil::  \/\__//  \\__//\T
-                                                                                                    RooUtil::    ||||    ||\\ Who cares!
-                                                                                                    RooUtil:: __ |||| __ |||| ___
-                                                                                                    RooUtil::   (_)(_)  (_)(_)
-                                                                                                    RooUtil:: 
-
-------------------------------
-CPU  Time:	0.6
-Real Time:	0.8
-

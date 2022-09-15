@@ -1,0 +1,15 @@
+hadd Target file: hadds/VBSZZH_C2V_4.root
+hadd compression setting for all ouput: 1
+hadd Source file 1: outputs/VBSZZH_C2V_4_1.root
+hadd Source file 2: outputs/VBSZZH_C2V_4_10.root
+hadd Source file 3: outputs/VBSZZH_C2V_4_11.root
+hadd Source file 4: outputs/VBSZZH_C2V_4_12.root
+hadd Source file 5: outputs/VBSZZH_C2V_4_2.root
+hadd Source file 6: outputs/VBSZZH_C2V_4_3.root
+hadd Source file 7: outputs/VBSZZH_C2V_4_4.root
+hadd Source file 8: outputs/VBSZZH_C2V_4_5.root
+hadd Source file 9: outputs/VBSZZH_C2V_4_6.root
+hadd Source file 10: outputs/VBSZZH_C2V_4_7.root
+hadd Source file 11: outputs/VBSZZH_C2V_4_8.root
+hadd Source file 12: outputs/VBSZZH_C2V_4_9.root
+hadd Target path: hadds/VBSZZH_C2V_4.root:/

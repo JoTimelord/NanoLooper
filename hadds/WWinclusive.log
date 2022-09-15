@@ -1,0 +1,7 @@
+hadd Target file: hadds/WWinclusive.root
+hadd compression setting for all ouput: 1
+hadd Source file 1: outputs/WWinclusive_1.root
+hadd Source file 2: outputs/WWinclusive_2.root
+hadd Source file 3: outputs/WWinclusive_3.root
+hadd Source file 4: outputs/WWinclusive_4.root
+hadd Target path: hadds/WWinclusive.root:/

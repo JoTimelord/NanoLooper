@@ -1,0 +1,11 @@
+hadd Target file: hadds/ttdilep.root
+hadd compression setting for all ouput: 1
+hadd Source file 1: outputs/ttdilep_1.root
+hadd Source file 2: outputs/ttdilep_2.root
+hadd Source file 3: outputs/ttdilep_3.root
+hadd Source file 4: outputs/ttdilep_4.root
+hadd Source file 5: outputs/ttdilep_5.root
+hadd Source file 6: outputs/ttdilep_6.root
+hadd Source file 7: outputs/ttdilep_7.root
+hadd Source file 8: outputs/ttdilep_8.root
+hadd Target path: hadds/ttdilep.root:/

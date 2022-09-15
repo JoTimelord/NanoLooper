@@ -6,17 +6,16 @@ def plot(histname, xaxis_name):
 
     p.dump_plot(
         # reference frame (with lower value)
-            fnames=["hadds/DYJETSbkg.root","hadds/ttdilep.root"],
-            #fnames=["hadds/WWdilep.root","hadds/WWinclusive.root"],
+            #fnames=["hadds/DYJETSbkg.root","hadds/ttdilep.root"],
+            fnames=["hadds/WWdilep.root","hadds/WWinclusive.root"],
             # with larger value
             # data_fname="/home/users/joytzphysics/plots/VBSWWH_4p51.root",
-            sig_fnames=["hadds/VBSOSWWH_C2V_3.root", "hadds/VBSWZH_C2V_3.root", "hadds/VBSZZH_C2V_3.root"],
-            #sig_fnames=["hadds/VBSOSWWH_C2V_4.root", "hadds/VBSWZH_C2V_4.root"],
-            #sig_fnames=["hadds/VBSZZH_C2V_3.root", "hadds/VBSZZH_C2V_4.root"],
-            legend_labels=["DYJETSbkg","ttdilep"],
-            #legend_labels=["WWdilep","WWinclusive"],
-            signal_labels=["VBSOSWWH C_{2V}=3", "VBSWZH C_{2V}=3", "VBSZZH C_{2V}=3"],
-            #signal_labels=["VBSOSWWH C_{2V}=4", "VBSWZH C_{2V}=4"],
+            sig_fnames=["hadds/VBSOSWWH_C2V_4.root", "hadds/VBSWZH_C2V_4.root", "hadds/VBSZZH_C2V_4.root"],
+            #sig_fnames=["hadds/VBSOSWWH_C2V_3.root", "hadds/VBSWZH_C2V_3.root", "hadds/VBSZZH_C2V_3.root"],
+            #legend_labels=["DYJETSbkg","ttdilep"],
+            legend_labels=["WWdilep","WWinclusive"],
+            signal_labels=["VBSOSWWH C_{2V}=4", "VBSWZH C_{2V}=4", "VBSZZH C_{2V}=4"],
+            #signal_labels=["VBSOSWWH C_{2V}=3", "VBSWZH C_{2V}=3", "VBSZZH C_{2V}=3"],
             #signal_labels=["VBSZZH C_{2V}=3", "VBSZZH C_{2V}=4"],
             filter_pattern=histname,
             dogrep=False,
@@ -61,6 +60,7 @@ if __name__ == "__main__":
                  "ptMET",
                  "EtMET",
                  "ST",
+                 "KT"
                  )
 
     for name in hist_list:
