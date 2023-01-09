@@ -1,7 +1,0 @@
-process             cross-section(fb)    Nevents        scale1fb       Path
-VBSOSWWH C2V=3      5.652                645745         8.752681e-6    /home/users/joytzphysics/VBSOSWWH_C2V_3
-VBSWWH C2V=3        3.559                637750         5.580557e-6    /home/users/joytzphysics/VBSWWH_C2V_3
-VBSWZH C2V=3        3.742                645500         5.797057e-6    /home/users/joytzphysics/VBSWZH_C2V_3
-VBSZZH C2V=3        2.994                641998         4.663566e-6    /home/users/joytzphysics/VBSZZH_C2V_3
-ttbar               87315                35403000       0.002466       /home/users/joytzphysics/ttbar
-DYjets              6198000              30439471       0.2036172      /home/users/joytzphysics/DYJETSbkg
