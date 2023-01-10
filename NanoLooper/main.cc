@@ -19,7 +19,7 @@ namespace Obj
     struct Elec
     {
         LV p4;
-        int isTight;
+        bool isTight;
         int jetIdx; // Overlapping jet index
         int pdgid;
     };
@@ -29,7 +29,7 @@ namespace Obj
     struct Muon
     {
         LV p4;
-        int isTight;
+        bool isTight;
         int jetIdx; // Overlapping jet index
         int pdgid;
     };
